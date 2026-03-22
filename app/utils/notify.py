@@ -1,28 +1,23 @@
-"""Send email notifications via SMTP (Outlook/Gmail) or print in dev."""
+"""Send email notifications via SMTP in a background thread."""
 import smtplib
 import os
+import threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-def _send_email(subject, body):
-    """Send an email notification. Falls back to print in dev."""
+def _send_email_sync(subject, body):
+    """Actual email send — runs in background thread."""
     to_email = os.environ.get('CONTACT_TO_EMAIL', 'lagobrian@outlook.com')
     smtp_email = os.environ.get('SMTP_EMAIL', '')
     smtp_password = os.environ.get('SMTP_PASSWORD', '')
-    smtp_host = os.environ.get('SMTP_HOST', 'smtp-mail.outlook.com')
+    smtp_host = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
     smtp_port = int(os.environ.get('SMTP_PORT', '587'))
 
     if not smtp_email or not smtp_password:
-        # Dev mode — just print
-        print(f"\n{'='*50}")
-        print(f"EMAIL NOTIFICATION")
-        print(f"To: {to_email}")
-        print(f"Subject: {subject}")
-        print(f"{'='*50}")
-        print(body)
-        print(f"{'='*50}\n")
-        return True
+        print(f"[NOTIFY] {subject}")
+        print(body[:300])
+        return
 
     try:
         msg = MIMEMultipart()
@@ -31,14 +26,19 @@ def _send_email(subject, body):
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
 
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
             server.starttls()
             server.login(smtp_email, smtp_password)
             server.send_message(msg)
-        return True
+        print(f"[NOTIFY] Email sent: {subject}")
     except Exception as e:
-        print(f"Email notification failed: {e}")
-        return False
+        print(f"[NOTIFY] Email failed: {e}")
+
+
+def _send_email(subject, body):
+    """Send email in a background thread so it never blocks the request."""
+    t = threading.Thread(target=_send_email_sync, args=(subject, body), daemon=True)
+    t.start()
 
 
 def notify_hire_request(hr):
@@ -46,7 +46,7 @@ def notify_hire_request(hr):
     subject = f"[New Project Application] {hr.project_title}"
     body = f"""New project application received!
 
-Client: {hr.client_name}
+Client: {hr.client_name or 'Anonymous'}
 Email: {hr.client_email}
 Phone: {hr.client_phone or 'Not provided'}
 Anonymous: {'Yes' if hr.is_anonymous else 'No'}

@@ -143,62 +143,67 @@ def contact():
 @public.route('/hire', methods=['GET', 'POST'])
 def hire():
     if request.method == 'POST':
-        # Process hiring form
-        hr = HireRequest(
-            client_name=request.form.get('client_name', '').strip(),
-            client_email=request.form.get('client_email', '').strip(),
-            client_phone=request.form.get('client_phone', '').strip(),
-            is_anonymous=request.form.get('is_anonymous') == 'on',
-            project_title=request.form.get('project_title', '').strip(),
-            project_description=request.form.get('project_description', '').strip(),
-            ai_summary=request.form.get('ai_summary', '').strip(),
-            deliverables=request.form.get('deliverables', '').strip(),
-            payment_method=request.form.get('payment_method', ''),
-            pricing_type=request.form.get('pricing_type', ''),
-            payment_schedule=request.form.get('payment_schedule', ''),
-            total_amount=float(request.form.get('total_amount', 0) or 0),
-            deposit_amount=float(request.form.get('deposit_amount', 0) or 0),
-        )
+        try:
+            hr = HireRequest(
+                client_name=request.form.get('client_name', '').strip(),
+                client_email=request.form.get('client_email', '').strip(),
+                client_phone=request.form.get('client_phone', '').strip(),
+                is_anonymous=request.form.get('is_anonymous') == 'on',
+                project_title=request.form.get('project_title', '').strip(),
+                project_description=request.form.get('project_description', '').strip(),
+                ai_summary=request.form.get('ai_summary', '').strip(),
+                deliverables=request.form.get('deliverables', '').strip(),
+                payment_method=request.form.get('payment_method', ''),
+                pricing_type=request.form.get('pricing_type', ''),
+                payment_schedule=request.form.get('payment_schedule', ''),
+                total_amount=float(request.form.get('total_amount', 0) or 0),
+                deposit_amount=float(request.form.get('deposit_amount', 0) or 0),
+            )
 
-        # Parse deadline
-        deadline_str = request.form.get('deadline', '')
-        if deadline_str:
+            deadline_str = request.form.get('deadline', '')
+            if deadline_str:
+                try:
+                    hr.deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
+                except ValueError:
+                    pass
+
+            db.session.add(hr)
+            db.session.flush()
+
+            # Handle file uploads
+            files = request.files.getlist('files')
+            upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'client_files', str(hr.id))
+            for f in files:
+                if f and f.filename:
+                    os.makedirs(upload_dir, exist_ok=True)
+                    original = secure_filename(f.filename)
+                    unique_name = f"{uuid.uuid4().hex}_{original}"
+                    f.save(os.path.join(upload_dir, unique_name))
+                    hrf = HireRequestFile(
+                        hire_request_id=hr.id,
+                        filename=unique_name,
+                        original_filename=original,
+                        file_size=f.content_length or 0
+                    )
+                    db.session.add(hrf)
+
+            db.session.commit()
+
+            # Send notification in background thread (never blocks)
             try:
-                from datetime import datetime
-                hr.deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
-            except ValueError:
+                from app.utils.notify import notify_hire_request
+                notify_hire_request(hr)
+            except Exception:
                 pass
 
-        db.session.add(hr)
-        db.session.flush()
+            return render_template('public/hire_success.html')
 
-        # Handle file uploads
-        files = request.files.getlist('files')
-        upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'client_files', str(hr.id))
-        for f in files:
-            if f and f.filename:
-                os.makedirs(upload_dir, exist_ok=True)
-                original = secure_filename(f.filename)
-                unique_name = f"{uuid.uuid4().hex}_{original}"
-                f.save(os.path.join(upload_dir, unique_name))
-                hrf = HireRequestFile(
-                    hire_request_id=hr.id,
-                    filename=unique_name,
-                    original_filename=original,
-                    file_size=f.content_length or 0
-                )
-                db.session.add(hrf)
-
-        db.session.commit()
-
-        # Send notification
-        try:
-            from app.utils.notify import notify_hire_request
-            notify_hire_request(hr)
-        except Exception:
-            pass  # Don't fail the request if notification fails
-
-        return render_template('public/hire_success.html')
+        except Exception as e:
+            db.session.rollback()
+            print(f"[ERROR] Hire form failed: {e}")
+            from flask import flash
+            flash('Something went wrong. Please try again or email lagobrian@outlook.com directly.', 'error')
+            return render_template('public/hire.html')
 
     return render_template('public/hire.html')
 
