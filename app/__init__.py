@@ -53,6 +53,7 @@ def create_app():
     app.register_blueprint(public)
     app.register_blueprint(blog)
     app.register_blueprint(api, url_prefix='/api')
+    csrf.exempt(api)
     app.register_blueprint(crm_auth, url_prefix='/admin')
     app.register_blueprint(crm_dashboard, url_prefix='/admin')
     app.register_blueprint(crm_projects, url_prefix='/admin/projects')
