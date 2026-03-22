@@ -38,7 +38,9 @@
               this.files = [...this.files, ...newFiles];
             },
             removeFile(i) { this.files.splice(i, 1); },
-          }">
+            submitting: false,
+          }"
+          @submit="submitting = true">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <!-- ====== SECTION 1: YOUR INFORMATION ====== -->
@@ -51,7 +53,7 @@
 
           <div class="flex flex-col gap-1.5" x-show="!anonymous">
             <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Full Name *</label>
-            <input type="text" name="client_name" :required="!anonymous"
+            <input type="text" name="client_name" x-bind:required="!anonymous" :disabled="anonymous"
                    class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600"
                    placeholder="Jane Doe" />
           </div>
@@ -74,7 +76,7 @@
           <div class="flex flex-col gap-2 sm:col-span-2">
             <label class="flex items-center gap-3 cursor-pointer w-fit">
               <div class="relative">
-                <input type="checkbox" name="anonymous" x-model="anonymous" class="sr-only" />
+                <input type="checkbox" name="is_anonymous" x-model="anonymous" class="sr-only" />
                 <div class="w-10 h-6 rounded-full transition-colors"
                      :class="anonymous ? 'bg-gold-500' : 'bg-bg-600'">
                 </div>
@@ -283,10 +285,12 @@
         <p class="text-xs font-mono text-gray-600 max-w-sm">
           By submitting you agree to be contacted about this project. No spam — ever.
         </p>
-        <button type="submit"
-                class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-base transition-all shadow-2xl shadow-gold-900/40 hover:shadow-gold-700/50 hover:-translate-y-0.5 whitespace-nowrap">
-          Submit Project Brief
-          <i data-lucide="send" class="w-5 h-5"></i>
+        <button type="submit" :disabled="submitting"
+                class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gold-500 hover:bg-gold-400 disabled:opacity-60 disabled:cursor-wait text-black font-heading font-bold text-base transition-all shadow-2xl shadow-gold-900/40 hover:shadow-gold-700/50 hover:-translate-y-0.5 whitespace-nowrap">
+          <span x-show="!submitting">Submit Project Brief</span>
+          <span x-show="submitting">Submitting...</span>
+          <i data-lucide="send" class="w-5 h-5" x-show="!submitting"></i>
+          <svg x-show="submitting" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
         </button>
       </div>
 
