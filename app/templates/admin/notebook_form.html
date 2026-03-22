@@ -1,0 +1,121 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if notebook else 'New' }} Notebook{% endblock %}
+{% block topbar_title %}{{ 'Edit' if notebook else 'New' }} Notebook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+
+  <div class="flex items-center gap-4">
+    <a href="/admin/notebooks/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if notebook else 'New' }} Notebook</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_notebooks.edit_notebook', notebook_id=notebook.id) if notebook else url_for('crm_notebooks.new_notebook') }}"
+        enctype="multipart/form-data"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="title">Title <span class="text-red-400">*</span></label>
+        <input type="text" id="title" name="title" required
+               value="{{ notebook.title if notebook else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Notebook title" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="slug">Slug</label>
+        <input type="text" id="slug" name="slug"
+               value="{{ notebook.slug if notebook else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="auto-generated-if-blank" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="description">Description</label>
+        <textarea id="description" name="description" rows="3"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="Short description">{{ notebook.description if notebook else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="category">Category</label>
+          <input type="text" id="category" name="category"
+                 value="{{ notebook.category if notebook else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="e.g., Quant, ML" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="tags">Tags <span class="text-gray-500 font-mono text-xs">(comma-separated)</span></label>
+          <input type="text" id="tags" name="tags"
+                 value="{{ notebook.tags if notebook else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="python, pandas" />
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notebook_url">Notebook URL <span class="text-gray-500 font-mono text-xs">(Colab, nbviewer, etc.)</span></label>
+        <input type="url" id="notebook_url" name="notebook_url"
+               value="{{ notebook.notebook_url if notebook else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="https://colab.research.google.com/..." />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="github_url">GitHub URL</label>
+        <input type="url" id="github_url" name="github_url"
+               value="{{ notebook.github_url if notebook else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="https://github.com/..." />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="sort_order">Sort Order</label>
+          <input type="number" id="sort_order" name="sort_order" min="0"
+                 value="{{ notebook.sort_order if notebook else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 font-mono" />
+        </div>
+        <div class="flex items-center gap-3 pt-7">
+          <input type="checkbox" id="is_visible" name="is_visible" value="1"
+                 {{ 'checked' if not notebook or notebook.is_visible }}
+                 class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+          <label for="is_visible" class="text-sm text-gray-300">Visible on site</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if notebook else 'Create Notebook' }}
+        </button>
+        <a href="/admin/notebooks/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if notebook %}
+        <form method="POST" action="/admin/notebooks/{{ notebook.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this notebook?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

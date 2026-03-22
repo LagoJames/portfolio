@@ -1,0 +1,175 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Page Header -->
+  <div>
+    <h2 class="font-heading font-semibold text-2xl text-white">Overview</h2>
+    <p class="text-gray-500 text-sm font-mono mt-0.5">Welcome back, {{ current_user.email if current_user else 'Admin' }}</p>
+  </div>
+
+  <!-- Stat Cards Row 1 -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <!-- Total Projects -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-blue-500/10 rounded-lg">
+          <i data-lucide="folder-open" class="w-5 h-5 text-blue-400"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.total_projects | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Total Projects</p>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-purple-500/10 rounded-lg">
+          <i data-lucide="quote" class="w-5 h-5 text-purple-400"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.total_testimonials | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Testimonials</p>
+    </div>
+
+    <!-- Notebooks -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-green-500/10 rounded-lg">
+          <i data-lucide="book-open" class="w-5 h-5 text-green-400"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.total_notebooks | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Notebooks</p>
+    </div>
+
+    <!-- Unread Contacts -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-red-500/10 rounded-lg">
+          <i data-lucide="mail" class="w-5 h-5 text-red-400"></i>
+        </div>
+        {% if stats.unread_contacts > 0 %}
+          <span class="bg-red-600 text-white text-xs font-mono font-bold px-2 py-0.5 rounded-full">NEW</span>
+        {% endif %}
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.unread_contacts | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Unread Contacts</p>
+    </div>
+  </div>
+
+  <!-- Stat Cards Row 2 -->
+  <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+
+    <!-- Pending Hire Requests -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-yellow-500/10 rounded-lg">
+          <i data-lucide="briefcase" class="w-5 h-5 text-yellow-400"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.pending_hire_requests | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Pending Hire Requests</p>
+    </div>
+
+    <!-- Active Projects -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-gold-500/10 rounded-lg">
+          <i data-lucide="rocket" class="w-5 h-5 text-gold-400"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.active_projects | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Active Projects</p>
+    </div>
+
+    <!-- Pending Reviews -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div class="p-2 bg-orange-500/10 rounded-lg">
+          <i data-lucide="star" class="w-5 h-5 text-orange-400"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-heading font-bold text-white">{{ stats.pending_reviews | default(0) }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Pending Reviews</p>
+    </div>
+  </div>
+
+  <!-- Recent Contacts -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <h3 class="font-heading font-semibold text-white text-sm">Recent Contacts</h3>
+      <a href="/admin/contacts/" class="text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">View all →</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Name</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Project Type</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if recent_contacts %}
+            {% for contact in recent_contacts %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors cursor-pointer"
+                  onclick="window.location='/admin/contacts/{{ contact.id }}/'">
+                <td class="px-5 py-3 text-white font-medium">{{ contact.name }}</td>
+                <td class="px-5 py-3 text-gray-400">{{ contact.project_type | default('—') }}</td>
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs hidden md:table-cell">
+                  {{ contact.created_at.strftime('%b %d, %Y') if contact.created_at else '—' }}
+                </td>
+                <td class="px-5 py-3">
+                  {% if not contact.is_read %}
+                    <span class="inline-flex items-center gap-1 bg-red-600/20 text-red-400 border border-red-600/30 text-xs font-mono px-2 py-0.5 rounded-full">
+                      <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Unread
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center gap-1 bg-bg-700 text-gray-500 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">
+                      Read
+                    </span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4" class="px-5 py-8 text-center text-gray-500 font-mono text-sm">No contacts yet.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div>
+    <h3 class="font-heading font-semibold text-white text-sm mb-3">Quick Actions</h3>
+    <div class="flex flex-wrap gap-3">
+      <a href="/admin/projects/new/"
+         class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Project
+      </a>
+      <a href="/admin/notebooks/new/"
+         class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Notebook
+      </a>
+      <a href="/admin/contacts/"
+         class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="mail" class="w-4 h-4"></i> View Contacts
+      </a>
+      <a href="/admin/hire-requests/"
+         class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="briefcase" class="w-4 h-4"></i> View Hire Requests
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

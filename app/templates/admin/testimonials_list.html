@@ -1,0 +1,105 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Testimonials{% endblock %}
+{% block topbar_title %}Testimonials{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Testimonials</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">{{ testimonials | length }} total</p>
+    </div>
+    <a href="/admin/testimonials/new/"
+       class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+      <i data-lucide="plus" class="w-4 h-4"></i> Add Testimonial
+    </a>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Client</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Job Title</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Rating</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Source</th>
+            <th class="text-center px-3 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Visible</th>
+            <th class="text-center px-3 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Order</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if testimonials %}
+            {% for t in testimonials %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-3">
+                    {% if t.avatar_url %}
+                      <img src="{{ t.avatar_url }}" class="w-8 h-8 rounded-full object-cover bg-bg-700" />
+                    {% else %}
+                      <div class="w-8 h-8 rounded-full bg-bg-700 flex items-center justify-center text-gray-500 font-heading font-bold text-xs">
+                        {{ t.client_name[0] | upper if t.client_name else '?' }}
+                      </div>
+                    {% endif %}
+                    <span class="text-white font-medium">{{ t.client_name }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-3 text-gray-400 text-sm hidden md:table-cell">{{ t.job_title | default('—') }}</td>
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-0.5">
+                    {% for i in range(5) %}
+                      <i data-lucide="star" class="w-3.5 h-3.5 {{ 'text-gold-400 fill-gold-400' if i < (t.rating | int) else 'text-gray-600' }}"></i>
+                    {% endfor %}
+                    <span class="ml-1.5 text-gray-400 font-mono text-xs">{{ t.rating | default(5) }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-3 hidden lg:table-cell">
+                  {% if t.source == 'upwork' %}
+                    <span class="bg-green-900/40 text-green-400 border border-green-700/30 text-xs font-mono px-2 py-0.5 rounded">Upwork</span>
+                  {% elif t.source == 'google' %}
+                    <span class="bg-blue-900/40 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded">Google</span>
+                  {% else %}
+                    <span class="bg-bg-700 text-gray-500 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded">{{ t.source | default('Direct') }}</span>
+                  {% endif %}
+                </td>
+                <td class="px-3 py-3 text-center">
+                  <form method="POST" action="/admin/testimonials/{{ t.id }}/toggle-visible/" class="inline">
+                    <button type="submit" title="{{ 'Hide' if t.is_visible else 'Show' }}">
+                      <i data-lucide="{{ 'eye' if t.is_visible else 'eye-off' }}" class="w-4 h-4 mx-auto {{ 'text-green-400' if t.is_visible else 'text-gray-600' }}"></i>
+                    </button>
+                  </form>
+                </td>
+                <td class="px-3 py-3 text-center text-gray-500 font-mono text-xs hidden lg:table-cell">{{ t.sort_order | default(0) }}</td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/testimonials/{{ t.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/testimonials/{{ t.id }}/delete/"
+                          onsubmit="return confirm('Delete this testimonial?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-5 py-10 text-center text-gray-500 font-mono text-sm">
+                No testimonials. <a href="/admin/testimonials/new/" class="text-gold-400 hover:underline">Add one →</a>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

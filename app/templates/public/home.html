@@ -1,0 +1,629 @@
+{% extends 'base.html' %}
+
+{% block title %}Lago Brian — Financial Engineer & Data Scientist{% endblock %}
+{% block meta_description %}Quantitative research, algorithmic trading, and machine learning. Based in Nairobi, Kenya. Available for freelance work.{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="relative min-h-screen flex items-center overflow-hidden bg-bg-950">
+  <!-- Grain overlay -->
+  <div class="absolute inset-0 opacity-[0.035] pointer-events-none"
+       style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');"></div>
+
+  <!-- Radial glow -->
+  <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gold-600/4 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-32 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-center">
+
+      <!-- Left 60% -->
+      <div class="lg:col-span-3 flex flex-col gap-6"
+           x-data="{}" x-intersect.once="$el.classList.add('animate-slide-up')">
+
+        <!-- Availability badge -->
+        {% set status = settings.availability_status if settings else 'available' %}
+        <div class="flex items-center gap-2 w-fit">
+          {% if status == 'available' %}
+            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            <span class="text-xs font-mono text-green-400 uppercase tracking-widest">Available for work</span>
+          {% elif status == 'limited' %}
+            <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+            <span class="text-xs font-mono text-yellow-400 uppercase tracking-widest">Limited availability</span>
+          {% else %}
+            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+            <span class="text-xs font-mono text-red-400 uppercase tracking-widest">Currently unavailable</span>
+          {% endif %}
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[0.95] tracking-tight text-gray-50">
+          FINANCIAL<br />
+          <span class="text-gold-400">ENGINEER</span><br />
+          &amp; DATA<br />
+          SCIENTIST
+        </h1>
+
+        <!-- Location -->
+        <div class="flex items-center gap-2 text-sm font-mono text-gray-500">
+          <i data-lucide="map-pin" class="w-4 h-4 text-gold-600"></i>
+          Nairobi, Kenya &mdash; UTC+3
+        </div>
+
+        <!-- Bio -->
+        <p class="text-base sm:text-lg font-body text-gray-400 leading-relaxed max-w-xl">
+          I build quantitative models, algorithmic trading systems, and data-driven financial tools.
+          From options pricing to ML-powered market research — I turn complex financial theory into
+          working code that performs.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <a href="{{ url_for('public.work') }}"
+             class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all duration-200 shadow-lg shadow-gold-900/40 hover:shadow-gold-700/40 hover:-translate-y-0.5">
+            View My Work
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="{{ url_for('public.contact') }}"
+             class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all duration-200 bg-bg-800/50">
+            Get in Touch
+          </a>
+        </div>
+      </div>
+
+      <!-- Right 40%: Animated Code Block -->
+      <div class="lg:col-span-2 flex items-center justify-center"
+           x-data="{ snippet: 0 }"
+           x-init="setInterval(() => snippet = (snippet + 1) % 3, 6000)">
+        <div class="w-full max-w-md bg-bg-800 border border-bg-600 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+          <!-- Window chrome -->
+          <div class="flex items-center gap-1.5 px-4 py-3 bg-bg-700 border-b border-bg-600">
+            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+            <span class="ml-3 text-xs font-mono text-gray-500"
+                  x-text="['differential_dl.py', 'gibbs_sampler.py', 'fault_detection.py'][snippet]">differential_dl.py</span>
+          </div>
+          <!-- Code — rotates through 3 real snippets -->
+          <div class="p-5 font-mono text-xs leading-relaxed overflow-x-auto">
+
+            <!-- Snippet 1: Differential DL Twin Network (from PyTorch_DifferentialDL.ipynb) -->
+            <pre x-show="snippet === 0" x-transition.opacity.duration.500ms class="text-gray-300"><span class="text-gray-500"># Differential Deep Learning — Twin Network</span>
+<span class="text-purple-400">class</span> <span class="text-green-300">TwinNET</span>(nn.Module):
+    <span class="text-purple-400">def</span> <span class="text-yellow-300">__init__</span>(self, input_dim, hidden_units,
+                 hidden_layers, seed):
+        <span class="text-blue-300">super</span>(TwinNET, self).__init__()
+        self.layers = nn.ModuleList()
+        self.layers.append(
+            nn.Linear(input_dim, hidden_units))
+        <span class="text-purple-400">for</span> _ <span class="text-purple-400">in</span> <span class="text-blue-300">range</span>(hidden_layers):
+            self.layers.append(
+                nn.Linear(hidden_units, hidden_units))
+        self.output = nn.Linear(hidden_units, <span class="text-orange-300">1</span>)
+
+    <span class="text-purple-400">def</span> <span class="text-yellow-300">forward</span>(self, x):
+        <span class="text-purple-400">for</span> layer <span class="text-purple-400">in</span> self.layers:
+            x = torch.relu(layer(x))
+        <span class="text-purple-400">return</span> self.output(x)<span class="text-green-400 animate-pulse">▋</span></pre>
+
+            <!-- Snippet 2: Bayesian Gibbs Sampler (from Joel_Khalil_IV_Models.ipynb) -->
+            <pre x-show="snippet === 1" x-transition.opacity.duration.500ms class="text-gray-300"><span class="text-gray-500"># Bayesian IV — Gibbs Sampler</span>
+<span class="text-purple-400">def</span> <span class="text-green-300">bayesian_gibbs_sampler</span>(data, y_tilde_beta,
+        total_samples=<span class="text-orange-300">11000</span>, warmup=<span class="text-orange-300">1000</span>):
+    n = data.shape[<span class="text-orange-300">0</span>]
+    education = data[<span class="text-amber-300">'EDUCATION'</span>].values
+    income = data[<span class="text-amber-300">'LOG_INCOME'</span>].values
+
+    <span class="text-gray-500"># Posterior sampling loop</span>
+    <span class="text-purple-400">for</span> i <span class="text-purple-400">in</span> <span class="text-blue-300">range</span>(total_samples):
+        <span class="text-gray-500"># Sample beta | sigma, data</span>
+        V_beta = np.linalg.inv(
+            X.T @ X / sigma_sq + V_prior_inv)
+        mu_beta = V_beta @ (
+            X.T @ y / sigma_sq + V_prior_inv @ mu0)
+        beta = np.random.multivariate_normal(
+            mu_beta, V_beta)
+        samples.append(beta)<span class="text-green-400 animate-pulse">▋</span></pre>
+
+            <!-- Snippet 3: GRU Fault Detection (from supervised_fault_detection.ipynb) -->
+            <pre x-show="snippet === 2" x-transition.opacity.duration.500ms class="text-gray-300"><span class="text-gray-500"># GRU Fault Detection — PyTorch</span>
+<span class="text-purple-400">class</span> <span class="text-green-300">GRUNet</span>(nn.Module):
+    <span class="text-purple-400">def</span> <span class="text-yellow-300">__init__</span>(self, input_size, hidden_size,
+                 num_classes=<span class="text-orange-300">5</span>, num_layers=<span class="text-orange-300">4</span>):
+        <span class="text-blue-300">super</span>(GRUNet, self).__init__()
+        self.gru = nn.GRU(
+            input_size, hidden_size,
+            num_layers, batch_first=<span class="text-orange-300">True</span>)
+        self.fc = nn.Linear(hidden_size, num_classes)
+
+    <span class="text-purple-400">def</span> <span class="text-yellow-300">forward</span>(self, x):
+        output, _ = self.gru(x)
+        output = self.fc(output)
+        output = output.mean(dim=<span class="text-orange-300">0</span>)
+        probs = F.softmax(output, dim=<span class="text-orange-300">1</span>)
+        <span class="text-purple-400">return</span> probs
+
+<span class="text-gray-500"># 5 fault classes, Ray Tune HPO</span>
+model = GRUNet(<span class="text-orange-300">7</span>, <span class="text-orange-300">100</span>, <span class="text-orange-300">5</span>, <span class="text-orange-300">8</span>)<span class="text-green-400 animate-pulse">▋</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-600 animate-bounce">
+    <i data-lucide="chevron-down" class="w-5 h-5"></i>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PRESS STRIP
+     ============================================================ -->
+<section class="bg-bg-900 border-y border-bg-700 py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gray-600 uppercase tracking-widest text-center mb-8">As featured in</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+
+      <a href="https://spectramarkets.com" target="_blank" rel="noopener noreferrer"
+         class="group flex flex-col gap-3 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-gold-700 transition-all duration-200">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-blue-900/50 flex items-center justify-center">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-400"></i>
+          </div>
+          <span class="font-heading font-semibold text-gray-200 text-sm group-hover:text-gold-300 transition-colors">Spectra Markets</span>
+        </div>
+        <p class="text-xs font-body text-gray-500 leading-relaxed italic">
+          "...cited for quantitative analysis on FX volatility regimes and cross-asset correlation research."
+        </p>
+      </a>
+
+      <a href="https://marketwatch.com" target="_blank" rel="noopener noreferrer"
+         class="group flex flex-col gap-3 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-gold-700 transition-all duration-200">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-green-900/50 flex items-center justify-center">
+            <i data-lucide="trending-up" class="w-4 h-4 text-green-400"></i>
+          </div>
+          <span class="font-heading font-semibold text-gray-200 text-sm group-hover:text-gold-300 transition-colors">MarketWatch</span>
+        </div>
+        <p class="text-xs font-body text-gray-500 leading-relaxed italic">
+          "...referenced for data-driven research on emerging market equity dynamics and algorithmic signal generation."
+        </p>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     STATS STRIP
+     ============================================================ -->
+<section class="bg-bg-950 py-16 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8"
+         x-data="{
+           stats: [
+             { label: 'Projects Completed', value: 52, suffix: '', prefix: '' },
+             { label: 'Total Earnings',       value: 9,  suffix: 'K+', prefix: '$' },
+             { label: 'Research Papers',      value: 35, suffix: '+', prefix: '' },
+             { label: 'Years Experience',     value: 5,  suffix: '+', prefix: '' },
+           ],
+           counts: [0, 0, 0, 0],
+           started: false,
+           start() {
+             if (this.started) return;
+             this.started = true;
+             this.stats.forEach((s, i) => {
+               let duration = 1800;
+               let steps = 60;
+               let increment = s.value / steps;
+               let current = 0;
+               let interval = setInterval(() => {
+                 current += increment;
+                 if (current >= s.value) {
+                   this.counts[i] = s.value;
+                   clearInterval(interval);
+                 } else {
+                   this.counts[i] = Math.floor(current);
+                 }
+               }, duration / steps);
+             });
+           }
+         }"
+         x-intersect.once="start()">
+      <template x-for="(stat, i) in stats" :key="i">
+        <div class="flex flex-col items-center text-center gap-2">
+          <div class="font-mono font-bold text-4xl sm:text-5xl text-gold-400">
+            <span x-text="stat.prefix"></span><span x-text="counts[i]"></span><span x-text="stat.suffix"></span>
+          </div>
+          <div class="text-xs font-body text-gray-500 uppercase tracking-widest" x-text="stat.label"></div>
+        </div>
+      </template>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FEATURED WORK
+     ============================================================ -->
+<section class="py-20 bg-bg-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-end justify-between mb-12">
+      <div>
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Portfolio</p>
+        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">Selected Projects</h2>
+      </div>
+      <a href="{{ url_for('public.work') }}"
+         class="hidden sm:inline-flex items-center gap-2 text-sm font-body text-gray-400 hover:text-gold-400 transition-colors">
+        View all <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for project in featured %}
+        {% include 'public/partials/project_card.html' %}
+      {% else %}
+        <!-- Placeholder cards if no projects -->
+        {% for i in range(3) %}
+          <div class="rounded-xl bg-bg-800 border border-bg-700 overflow-hidden animate-pulse">
+            <div class="h-44 bg-bg-700"></div>
+            <div class="p-5 flex flex-col gap-3">
+              <div class="h-3 bg-bg-700 rounded w-1/4"></div>
+              <div class="h-5 bg-bg-700 rounded w-3/4"></div>
+              <div class="h-3 bg-bg-700 rounded w-full"></div>
+              <div class="h-3 bg-bg-700 rounded w-2/3"></div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    <div class="mt-8 text-center sm:hidden">
+      <a href="{{ url_for('public.work') }}"
+         class="inline-flex items-center gap-2 text-sm font-body text-gray-400 hover:text-gold-400 transition-colors">
+        View all projects <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SKILLS OVERVIEW
+     ============================================================ -->
+<section class="py-20 bg-bg-950 border-y border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+      <!-- Left: skill pills -->
+      <div>
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Expertise</p>
+        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-8">Technical Stack</h2>
+
+        <div class="flex flex-col gap-5">
+          {% set default_skills = {
+            'Quantitative Finance': ['Options Pricing', 'Risk Modeling', 'Portfolio Theory', 'Derivatives', 'Fixed Income'],
+            'Programming': ['Python', 'R', 'SQL', 'Julia', 'MATLAB', 'C++'],
+            'Machine Learning': ['Scikit-learn', 'PyTorch', 'TensorFlow', 'XGBoost', 'Time Series'],
+            'Data & Tools': ['Pandas', 'NumPy', 'Plotly', 'Bloomberg API', 'Jupyter'],
+            'Trading Systems': ['Algorithmic Trading', 'Backtesting', 'QuantConnect', 'Interactive Brokers API'],
+          } %}
+          {% set group_labels = {
+            'languages': 'Languages',
+            'ml_frameworks': 'ML / AI Frameworks',
+            'quant_finance': 'Quant Finance',
+            'statistics': 'Statistics',
+            'tools': 'Tools & Platforms',
+          } %}
+          {% set groups = skill_groups if skill_groups else default_skills %}
+          {% for group_name, skills in groups.items() %}
+            <div>
+              <h3 class="text-xs font-mono font-semibold text-gray-500 uppercase tracking-widest mb-2.5">{{ group_labels.get(group_name, group_name | replace('_', ' ') | title) }}</h3>
+              <div class="flex flex-wrap gap-2">
+                {% for skill in skills %}
+                  <span class="px-3 py-1.5 rounded-full bg-bg-700 border border-bg-600 text-xs font-mono text-gray-300 hover:border-gold-600 hover:text-gold-300 transition-colors cursor-default">
+                    {{ skill.name if skill.name is defined else skill }}
+                  </span>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Right: quote -->
+      <div class="flex flex-col justify-center">
+        <div class="relative p-8 rounded-2xl bg-bg-800 border border-bg-700">
+          <div class="absolute -top-4 left-8 text-6xl font-heading text-gold-500/20 leading-none select-none">"</div>
+          <blockquote class="font-heading text-xl sm:text-2xl text-gray-200 leading-relaxed font-medium relative z-10">
+            I don't just model markets &mdash; I build systems that understand them.
+          </blockquote>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-gold-500 flex items-center justify-center text-black font-mono font-bold text-xs">LB</div>
+            <div>
+              <p class="text-sm font-heading font-semibold text-gray-200">Lago Brian</p>
+              <p class="text-xs font-mono text-gray-500">Financial Engineer &amp; Data Scientist</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-bg-800 border border-bg-700 text-center">
+            <div class="font-mono font-bold text-2xl text-gold-400 mb-1">CFA</div>
+            <div class="text-xs font-body text-gray-500">Candidate L2</div>
+          </div>
+          <div class="p-4 rounded-xl bg-bg-800 border border-bg-700 text-center">
+            <div class="font-mono font-bold text-2xl text-gold-400 mb-1">FRM</div>
+            <div class="text-xs font-body text-gray-500">Risk Management</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     LATEST RESEARCH
+     ============================================================ -->
+<section class="py-20 bg-bg-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-end justify-between mb-12">
+      <div>
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Research & Writing</p>
+        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">From Quant (h)Edge</h2>
+      </div>
+      <a href="https://quanthedge.substack.com" target="_blank" rel="noopener noreferrer"
+         class="hidden sm:inline-flex items-center gap-2 text-sm font-body text-gray-400 hover:text-gold-400 transition-colors">
+        View all <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for post in recent_posts %}
+        <article class="group flex flex-col gap-4 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-gold-700 transition-all duration-200 hover:-translate-y-0.5">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-wrap gap-1.5">
+              {% for tag in post.tags[:2] %}
+                <span class="px-2 py-0.5 rounded bg-bg-700 text-xs font-mono text-gold-500">{{ tag }}</span>
+              {% endfor %}
+            </div>
+            <span class="text-xs font-mono text-gray-600">{{ post.published_at.strftime('%b %d, %Y') if post.published_at else '' }}</span>
+          </div>
+          <h3 class="font-heading font-semibold text-gray-100 group-hover:text-gold-300 transition-colors leading-snug">
+            {{ post.title }}
+          </h3>
+          <p class="text-sm font-body text-gray-400 leading-relaxed flex-1 line-clamp-3">
+            {{ post.excerpt or post.description or '' }}
+          </p>
+          <a href="{{ post.url or 'https://quanthedge.substack.com' }}" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1.5 text-xs font-mono text-gold-500 hover:text-gold-300 transition-colors">
+            Read on Substack <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+          </a>
+        </article>
+      {% else %}
+        {% for i in range(3) %}
+          <article class="flex flex-col gap-4 p-5 rounded-xl bg-bg-800 border border-bg-700 animate-pulse">
+            <div class="h-3 bg-bg-700 rounded w-1/3"></div>
+            <div class="h-5 bg-bg-700 rounded w-4/5"></div>
+            <div class="space-y-2 flex-1">
+              <div class="h-3 bg-bg-700 rounded"></div>
+              <div class="h-3 bg-bg-700 rounded w-5/6"></div>
+            </div>
+          </article>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     TESTIMONIALS CAROUSEL
+     ============================================================ -->
+<section class="py-20 bg-bg-950 border-y border-bg-700"
+         x-data="{
+           current: 0,
+           total: 0,
+           interval: null,
+           init() {
+             this.total = this.$refs.track ? this.$refs.track.children.length : 0;
+             this.interval = setInterval(() => { this.next(); }, 6000);
+           },
+           next() { this.current = (this.current + 1) % Math.max(this.total, 1); },
+           prev() { this.current = (this.current - 1 + Math.max(this.total, 1)) % Math.max(this.total, 1); },
+         }">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Social Proof</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">What Clients Say</h2>
+    </div>
+
+    <div class="relative overflow-hidden">
+      <div class="flex transition-transform duration-500 ease-out"
+           :style="'transform: translateX(-' + (current * 100) + '%)'">
+        <div x-ref="track" class="flex w-full">
+          {% for testimonial in testimonials %}
+            <div class="w-full flex-shrink-0 px-2">
+              <div class="p-6 sm:p-8 rounded-2xl bg-bg-800 border border-bg-700 mx-auto max-w-2xl">
+                <!-- Stars -->
+                <div class="flex items-center gap-1 mb-4">
+                  {% for s in range(5) %}
+                    <i data-lucide="star" class="w-4 h-4 {% if s < testimonial.rating %}text-gold-400 fill-gold-400{% else %}text-bg-600{% endif %}"></i>
+                  {% endfor %}
+                  <span class="ml-2 text-xs font-mono text-gray-500">{{ testimonial.source or 'Upwork' }}</span>
+                </div>
+                <blockquote class="font-body text-gray-300 leading-relaxed text-base mb-5 italic">
+                  "{{ testimonial.review_text }}"
+                </blockquote>
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-bg-600 flex items-center justify-center font-mono font-bold text-gold-400 text-sm">
+                    {{ (testimonial.client_name or 'C')[0] | upper }}
+                  </div>
+                  <div>
+                    <p class="text-sm font-heading font-semibold text-gray-200">{{ testimonial.client_name }}</p>
+                    <p class="text-xs font-mono text-gray-500">{{ testimonial.job_title or 'Client' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <!-- Placeholder testimonial -->
+            <div class="w-full flex-shrink-0 px-2">
+              <div class="p-6 sm:p-8 rounded-2xl bg-bg-800 border border-bg-700 mx-auto max-w-2xl">
+                <div class="flex items-center gap-1 mb-4">
+                  {% for s in range(5) %}<i data-lucide="star" class="w-4 h-4 text-gold-400 fill-gold-400"></i>{% endfor %}
+                  <span class="ml-2 text-xs font-mono text-gray-500">Upwork</span>
+                </div>
+                <blockquote class="font-body text-gray-300 leading-relaxed text-base mb-5 italic">
+                  "Lago delivered exceptional quantitative analysis for our options desk. His understanding of derivatives pricing and ability to communicate complex models clearly is outstanding."
+                </blockquote>
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-bg-600 flex items-center justify-center font-mono font-bold text-gold-400 text-sm">J</div>
+                  <div>
+                    <p class="text-sm font-heading font-semibold text-gray-200">James K.</p>
+                    <p class="text-xs font-mono text-gray-500">Portfolio Manager</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    {% if testimonials|length > 1 or not testimonials %}
+      <div class="flex items-center justify-center gap-4 mt-8">
+        <button @click="prev()" class="w-9 h-9 rounded-full bg-bg-800 border border-bg-700 hover:border-gold-600 flex items-center justify-center text-gray-400 hover:text-gold-400 transition-all">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        </button>
+        <div class="flex gap-2">
+          {% set tc = testimonials|length if testimonials else 1 %}
+          {% for i in range(tc) %}
+            <button @click="current = {{ i }}"
+                    :class="current === {{ i }} ? 'bg-gold-400 w-5' : 'bg-bg-600 hover:bg-bg-500 w-2'"
+                    class="h-2 rounded-full transition-all duration-300">
+            </button>
+          {% endfor %}
+        </div>
+        <button @click="next()" class="w-9 h-9 rounded-full bg-bg-800 border border-bg-700 hover:border-gold-600 flex items-center justify-center text-gray-400 hover:text-gold-400 transition-all">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- ============================================================
+     INTERESTS
+     ============================================================ -->
+<section class="py-20 bg-bg-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Beyond the Terminal</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">What Fuels Me</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- F1 -->
+      <div class="group relative overflow-hidden rounded-2xl bg-bg-800 border border-bg-700 p-8 hover:border-red-700 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full -translate-y-8 translate-x-8 group-hover:bg-red-600/10 transition-colors"></div>
+        <div class="relative">
+          <div class="w-12 h-12 rounded-xl bg-red-900/40 border border-red-800/50 flex items-center justify-center mb-5 text-2xl">
+            🏎️
+          </div>
+          <h3 class="font-heading font-bold text-xl text-gray-100 mb-2">Formula 1</h3>
+          <p class="text-sm font-body text-gray-400 leading-relaxed">
+            The perfect blend of engineering, strategy, and split-second decision-making.
+            I analyse tyre strategy the same way I analyse risk: with data and conviction.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 rounded bg-red-900/30 text-xs font-mono text-red-400">Strategy</span>
+            <span class="px-2 py-0.5 rounded bg-red-900/30 text-xs font-mono text-red-400">Engineering</span>
+            <span class="px-2 py-0.5 rounded bg-red-900/30 text-xs font-mono text-red-400">Data</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trading -->
+      <div class="group relative overflow-hidden rounded-2xl bg-bg-800 border border-bg-700 p-8 hover:border-gold-700 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full -translate-y-8 translate-x-8 group-hover:bg-gold-500/10 transition-colors"></div>
+        <div class="relative">
+          <div class="w-12 h-12 rounded-xl bg-gold-900/40 border border-gold-800/50 flex items-center justify-center mb-5 text-2xl">
+            📈
+          </div>
+          <h3 class="font-heading font-bold text-xl text-gray-100 mb-2">Trading</h3>
+          <p class="text-sm font-body text-gray-400 leading-relaxed">
+            Prop trading FX and equity derivatives. Building systematic strategies with a quantitative
+            edge — volatility arbitrage, mean-reversion, and momentum.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 rounded bg-gold-900/30 text-xs font-mono text-gold-400">FX</span>
+            <span class="px-2 py-0.5 rounded bg-gold-900/30 text-xs font-mono text-gold-400">Options</span>
+            <span class="px-2 py-0.5 rounded bg-gold-900/30 text-xs font-mono text-gold-400">Algo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- House Music -->
+      <div class="group relative overflow-hidden rounded-2xl bg-bg-800 border border-bg-700 p-8 hover:border-purple-700 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/5 rounded-full -translate-y-8 translate-x-8 group-hover:bg-purple-600/10 transition-colors"></div>
+        <div class="relative">
+          <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-800/50 flex items-center justify-center mb-5 text-2xl">
+            🎵
+          </div>
+          <h3 class="font-heading font-bold text-xl text-gray-100 mb-2">House Music</h3>
+          <p class="text-sm font-body text-gray-400 leading-relaxed">
+            Deep house, Afro house, and anything with a groove. Music is structure — patterns
+            emerging from controlled chaos. Not unlike a good trading signal.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 rounded bg-purple-900/30 text-xs font-mono text-purple-400">Deep House</span>
+            <span class="px-2 py-0.5 rounded bg-purple-900/30 text-xs font-mono text-purple-400">Afro House</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CONTACT CTA
+     ============================================================ -->
+<section class="py-24 bg-bg-950">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-bg-800 border border-bg-700 text-xs font-mono text-gray-500 mb-6">
+      <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+      Currently accepting new projects
+    </div>
+    <h2 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-5 leading-tight">
+      Have a project<br />
+      <span class="text-gold-400">in mind?</span>
+    </h2>
+    <p class="text-base sm:text-lg font-body text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+      From quantitative model development to full trading system architecture &mdash; let's discuss
+      what you're building and how I can help.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="{{ url_for('public.hire') }}"
+         class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-base transition-all duration-200 shadow-2xl shadow-gold-900/40 hover:shadow-gold-700/50 hover:-translate-y-0.5">
+        Start a Project
+        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+      </a>
+      <a href="{{ url_for('public.contact') }}"
+         class="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-base transition-all duration-200 bg-bg-800/50">
+        Just Say Hi
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

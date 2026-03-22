@@ -1,0 +1,246 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}PM: {{ pm_project.name }}{% endblock %}
+{% block topbar_title %}Project Detail{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <a href="/admin/pm/" class="text-gray-500 hover:text-white transition-colors">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div>
+        <h2 class="font-heading font-semibold text-2xl text-white">{{ pm_project.name }}</h2>
+        <p class="text-gray-500 text-xs font-mono mt-0.5">Client: {{ pm_project.client_name | default('—') }}</p>
+      </div>
+    </div>
+    <a href="/admin/pm/projects/{{ pm_project.id }}/edit/"
+       class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+      <i data-lucide="pencil" class="w-4 h-4"></i> Edit
+    </a>
+  </div>
+
+  <!-- Project Info Card -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Project Overview</h3>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Status</dt>
+        <dd>
+          {% set s = pm_project.status | default('active') %}
+          {% if s == 'active' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Active</span>
+          {% elif s == 'completed' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+          {% elif s == 'on_hold' %}<span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">On Hold</span>
+          {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">{{ s | title }}</span>
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Budget</dt>
+        <dd class="text-white font-mono font-semibold">${{ '{:,.2f}'.format(pm_project.budget) if pm_project.budget else '—' }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Paid</dt>
+        <dd class="text-green-400 font-mono font-semibold">${{ '{:,.2f}'.format(pm_project.paid) if pm_project.paid else '0.00' }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Balance</dt>
+        <dd class="font-mono font-semibold {{ 'text-red-400' if pm_project.balance and pm_project.balance > 0 else 'text-gray-500' }}">
+          ${{ '{:,.2f}'.format(pm_project.balance) if pm_project.balance else '0.00' }}
+        </dd>
+      </div>
+    </div>
+    {% if pm_project.notes %}
+      <div class="mt-4 pt-4 border-t border-bg-700">
+        <p class="text-gray-500 font-mono text-xs mb-1">Notes</p>
+        <p class="text-gray-300 text-sm">{{ pm_project.notes }}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Tasks -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <h3 class="font-heading font-semibold text-white text-sm">Tasks</h3>
+      <a href="/admin/pm/projects/{{ pm_project.id }}/tasks/new/"
+         class="inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide w-12">#</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Description</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Priority</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Due Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Hours</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if tasks %}
+            {% for task in tasks %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs">{{ loop.index }}</td>
+                <td class="px-5 py-3 text-white">{{ task.description }}</td>
+                <td class="px-5 py-3">
+                  {% set ts = task.status | default('todo') %}
+                  {% if ts == 'done' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Done</span>
+                  {% elif ts == 'in_progress' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">In Progress</span>
+                  {% elif ts == 'review' %}<span class="bg-purple-900/30 text-purple-400 border border-purple-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Review</span>
+                  {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">Todo</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 hidden md:table-cell">
+                  {% set p = task.priority | default('medium') %}
+                  {% if p == 'high' %}<span class="text-red-400 text-xs font-mono">High</span>
+                  {% elif p == 'low' %}<span class="text-gray-500 text-xs font-mono">Low</span>
+                  {% else %}<span class="text-yellow-400 text-xs font-mono">Medium</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">
+                  {{ task.due_date.strftime('%b %d') if task.due_date else '—' }}
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">{{ task.estimated_hours | default('—') }}h</td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/pm/tasks/{{ task.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/pm/tasks/{{ task.id }}/delete/"
+                          onsubmit="return confirm('Delete task?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No tasks yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Payments -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <h3 class="font-heading font-semibold text-white text-sm">Payments</h3>
+      <a href="/admin/pm/projects/{{ pm_project.id }}/payments/new/"
+         class="inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Record Payment
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Date</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Amount</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Method</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Invoice</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Receipt ID</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if payments %}
+            {% for pay in payments %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3 text-gray-300 font-mono text-xs">{{ pay.date.strftime('%b %d, %Y') if pay.date else '—' }}</td>
+                <td class="px-5 py-3 text-right text-green-400 font-mono font-semibold">${{ '{:,.2f}'.format(pay.amount) if pay.amount else '—' }}</td>
+                <td class="px-5 py-3 text-gray-400 hidden md:table-cell">{{ pay.payment_method | default('—') | title }}</td>
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs hidden lg:table-cell">{{ pay.invoice_number | default('—') }}</td>
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs hidden lg:table-cell">{{ pay.receipt_id | default('—') }}</td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/pm/payments/{{ pay.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/pm/payments/{{ pay.id }}/delete/"
+                          onsubmit="return confirm('Delete payment?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="6" class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No payments recorded.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Invoices -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <h3 class="font-heading font-semibold text-white text-sm">Invoices</h3>
+      <a href="/admin/pm/projects/{{ pm_project.id }}/invoices/new/"
+         class="inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Create Invoice
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Invoice #</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Date</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Amount</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Payment Status</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if invoices %}
+            {% for inv in invoices %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3 text-white font-mono text-xs">{{ inv.invoice_number | default('—') }}</td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden md:table-cell">{{ inv.date.strftime('%b %d, %Y') if inv.date else '—' }}</td>
+                <td class="px-5 py-3 text-right text-white font-mono">${{ '{:,.2f}'.format(inv.amount) if inv.amount else '—' }}</td>
+                <td class="px-5 py-3">
+                  {% if inv.payment_status == 'paid' %}
+                    <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Paid</span>
+                  {% elif inv.payment_status == 'partial' %}
+                    <span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Partial</span>
+                  {% else %}
+                    <span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Unpaid</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/pm/invoices/{{ inv.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/pm/invoices/{{ inv.id }}/delete/"
+                          onsubmit="return confirm('Delete invoice?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="5" class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No invoices yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

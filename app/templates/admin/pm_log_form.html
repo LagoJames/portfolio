@@ -1,0 +1,94 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if log else 'New' }} Work Log{% endblock %}
+{% block topbar_title %}{{ 'Edit' if log else 'New' }} Work Log{% endblock %}
+
+{% block content %}
+<div class="max-w-xl space-y-6">
+
+  <div class="flex items-center gap-4">
+    <a href="{{ '/admin/pm/projects/' ~ (log.project_id if log else project_id) ~ '/' if (log or project_id) else '/admin/pm/' }}"
+       class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if log else 'Log' }} Work</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_pm.edit_log', log_id=log.id) if log else url_for('crm_pm.log_task_time', task_id=task_id) }}"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+    {% if task_id and not log %}
+      <input type="hidden" name="task_id" value="{{ task_id }}" />
+    {% endif %}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      {% if task %}
+        <div class="bg-bg-700 rounded-lg px-4 py-3 text-sm">
+          <p class="text-gray-500 font-mono text-xs mb-0.5">Task</p>
+          <p class="text-white">{{ task.description }}</p>
+        </div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="date">Date <span class="text-red-400">*</span></label>
+          <input type="date" id="date" name="date" required
+                 value="{{ log.date.strftime('%Y-%m-%d') if log and log.date else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="actual_hours">Actual Hours <span class="text-red-400">*</span></label>
+          <input type="number" id="actual_hours" name="actual_hours" min="0" step="0.25" required
+                 value="{{ log.actual_hours if log else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="1.5" />
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="status">Task Status Update</label>
+        <select id="status" name="status"
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          <option value="">— No change —</option>
+          {% for val, label in [('todo','Todo'),('in_progress','In Progress'),('review','Review'),('done','Done')] %}
+            <option value="{{ val }}" {{ 'selected' if log and log.status_update == val }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notes">Work Notes</label>
+        <textarea id="notes" name="notes" rows="4"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="What was done, blockers, next steps...">{{ log.notes if log else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if log else 'Save Log' }}
+        </button>
+        <a href="/admin/pm/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if log %}
+        <form method="POST" action="/admin/pm/logs/{{ log.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this log entry?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

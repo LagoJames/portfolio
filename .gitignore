@@ -1,0 +1,20 @@
+venv/
+__pycache__/
+*.pyc
+.env
+instance/
+*.db
+*.sqlite
+uploads/projects/*
+uploads/profile/*
+uploads/cv/*
+uploads/client_files/*
+!uploads/*/.gitkeep
+.DS_Store
+*.swp
+Samples of My Work/
+upwork_screenshots/
+work history json data/
+plan/
+Updates to make/
+Project Management (1).xlsx

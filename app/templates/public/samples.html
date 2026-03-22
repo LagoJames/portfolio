@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Work Samples — Lago Brian{% endblock %}
+{% block meta_description %}Download Jupyter notebooks and research papers by Lago Brian. Quantitative finance, machine learning, and econometrics samples.{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="pt-24 pb-12 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Portfolio</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-4">Work Samples</h1>
+    <p class="text-base font-body text-gray-400 max-w-2xl leading-relaxed">
+      Jupyter notebooks and research papers showcasing quantitative finance, machine learning, and statistical analysis work. Download and explore.
+    </p>
+  </div>
+</div>
+
+<div class="bg-bg-900 py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Notebooks Section -->
+    <div class="mb-20">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="p-2 bg-orange-500/10 rounded-lg">
+          <i data-lucide="book-open" class="w-5 h-5 text-orange-400"></i>
+        </div>
+        <div>
+          <h2 class="font-heading font-bold text-2xl text-gray-50">Jupyter Notebooks</h2>
+          <p class="text-sm font-mono text-gray-500">{{ notebooks|length }} notebooks</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for nb in notebooks %}
+          <div class="group flex flex-col p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-orange-700/50 transition-all duration-200">
+            <!-- Category -->
+            <span class="self-start px-2.5 py-1 rounded-full bg-orange-900/30 text-xs font-mono text-orange-400 mb-3">
+              {{ nb.category }}
+            </span>
+
+            <!-- Title -->
+            <h3 class="font-heading font-semibold text-gray-100 group-hover:text-gold-300 transition-colors leading-snug mb-2">
+              {{ nb.title }}
+            </h3>
+
+            <!-- Description -->
+            <p class="text-sm font-body text-gray-400 leading-relaxed mb-4 flex-1">
+              {{ nb.desc }}
+            </p>
+
+            <!-- Tools -->
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              {% for tool in nb.tools %}
+                <span class="px-2 py-0.5 rounded bg-bg-700 text-xs font-mono text-gray-400">{{ tool }}</span>
+              {% endfor %}
+            </div>
+
+            <!-- Download -->
+            <a href="{{ url_for('static', filename='samples/notebooks/' + nb.file) }}"
+               download
+               class="inline-flex items-center gap-2 text-sm font-mono text-gold-500 hover:text-gold-300 transition-colors">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Download .ipynb
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Papers Section -->
+    <div>
+      <div class="flex items-center gap-3 mb-8">
+        <div class="p-2 bg-blue-500/10 rounded-lg">
+          <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
+        </div>
+        <div>
+          <h2 class="font-heading font-bold text-2xl text-gray-50">Research Papers & Reports</h2>
+          <p class="text-sm font-mono text-gray-500">{{ papers|length }} papers</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for paper in papers %}
+          <div class="group flex flex-col p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-blue-700/50 transition-all duration-200">
+            <!-- Category -->
+            <span class="self-start px-2.5 py-1 rounded-full bg-blue-900/30 text-xs font-mono text-blue-400 mb-3">
+              {{ paper.category }}
+            </span>
+
+            <!-- Title -->
+            <h3 class="font-heading font-semibold text-gray-100 group-hover:text-gold-300 transition-colors leading-snug mb-2">
+              {{ paper.title }}
+            </h3>
+
+            <!-- Description -->
+            <p class="text-sm font-body text-gray-400 leading-relaxed mb-4 flex-1">
+              {{ paper.desc }}
+            </p>
+
+            <!-- Download -->
+            <a href="{{ url_for('static', filename='samples/papers/' + paper.file) }}"
+               download
+               class="inline-flex items-center gap-2 text-sm font-mono text-gold-500 hover:text-gold-300 transition-colors">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Download .docx
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Note -->
+    <div class="mt-16 p-6 rounded-xl bg-bg-800 border border-bg-700 max-w-2xl">
+      <p class="text-sm font-body text-gray-400 leading-relaxed">
+        These are selected samples from my personal and academic work. Client projects are confidential and not included here.
+        For project-specific discussions, <a href="{{ url_for('public.contact') }}" class="text-gold-400 hover:text-gold-300">get in touch</a>.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

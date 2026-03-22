@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}Writing & Research — Lago Brian{% endblock %}
+{% block meta_description %}Research, newsletters, open source, and academic writing by Lago Brian — quantitative finance and data science.{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="pt-24 pb-12 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Writing & Research</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-4">Published Work</h1>
+    <p class="text-base sm:text-lg font-body text-gray-400 max-w-2xl leading-relaxed">
+      Newsletters, open source projects, Jupyter notebooks, and academic research — spanning
+      quantitative finance, market microstructure, and machine learning.
+    </p>
+  </div>
+</div>
+
+<div class="bg-bg-900">
+
+  <!-- ================================================================
+       SECTION 1: QUANT (h)EDGE
+       ================================================================ -->
+  <section class="py-16 border-b border-bg-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+         x-data="{
+           activeTab: 'all',
+           tabs: ['all', 'Research', 'Weekly Report', 'Resources', 'Comics'],
+         }">
+
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-5 h-5 rounded bg-orange-600/20 flex items-center justify-center">
+              <i data-lucide="trending-up" class="w-3 h-3 text-orange-400"></i>
+            </div>
+            <p class="text-xs font-mono text-orange-400 uppercase tracking-widest">Newsletter</p>
+          </div>
+          <h2 class="font-heading font-bold text-3xl text-gray-50">Quant (h)Edge</h2>
+          <p class="text-sm font-body text-gray-500 mt-2 max-w-lg">
+            Weekly quantitative research, trading strategies, and market analysis.
+            Derivatives, volatility, and systematic approaches.
+          </p>
+        </div>
+        <a href="https://quanthedge.substack.com?utm_source=portfolio" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-orange-600/20 hover:bg-orange-600/30 border border-orange-700/50 text-sm font-mono text-orange-300 hover:text-orange-200 transition-all shrink-0">
+          <i data-lucide="rss" class="w-4 h-4"></i>
+          Subscribe on Substack
+        </a>
+      </div>
+
+      <!-- Tab filter removed -->
+
+      <!-- Posts Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {% for post in quant_posts %}
+          <article class="group flex flex-col gap-4 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-orange-700/50 transition-all duration-200 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between">
+              {% if post.category %}
+                <span class="px-2.5 py-1 rounded-full bg-orange-900/30 text-xs font-mono text-orange-400">{{ post.category }}</span>
+              {% else %}
+                <div></div>
+              {% endif %}
+              <span class="text-xs font-mono text-gray-600">{{ post.published_at.strftime('%b %d') if post.published_at else '' }}</span>
+            </div>
+            <h3 class="font-heading font-semibold text-gray-100 group-hover:text-gold-300 transition-colors leading-snug">
+              {{ post.title }}
+            </h3>
+            <p class="text-sm font-body text-gray-500 flex-1 line-clamp-3 leading-relaxed">
+              {{ post.excerpt or '' }}
+            </p>
+            <a href="{{ post.url or 'https://quanthedge.substack.com' }}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 text-xs font-mono text-orange-400 hover:text-orange-300 transition-colors">
+              Read on Substack <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </article>
+        {% else %}
+          <div class="col-span-full text-center py-12">
+            <i data-lucide="file-text" class="w-10 h-10 text-gray-600 mx-auto mb-3"></i>
+            <p class="text-sm font-body text-gray-500">No posts synced yet. Check Substack directly.</p>
+            <a href="https://quanthedge.substack.com" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 mt-3 text-sm font-mono text-orange-400 hover:text-orange-300 transition-colors">
+              Visit Quant (h)Edge <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================
+       SECTION 2: JARIDA LA HISA
+       ================================================================ -->
+  <section class="py-16 border-b border-bg-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-base">🇰🇪</span>
+            <p class="text-xs font-mono text-green-400 uppercase tracking-widest">Swahili Newsletter</p>
+          </div>
+          <h2 class="font-heading font-bold text-3xl text-gray-50">Jarida La Hisa</h2>
+          <p class="text-sm font-body text-gray-500 mt-2 max-w-lg">
+            Masoko ya hisa, uwekezaji, na fedha kwa lugha ya Kiswahili.
+            Finance education for East Africa.
+          </p>
+        </div>
+        <a href="https://jaridalachisa.substack.com?utm_source=portfolio" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-green-900/20 hover:bg-green-900/30 border border-green-800/50 text-sm font-mono text-green-300 hover:text-green-200 transition-all shrink-0">
+          <i data-lucide="rss" class="w-4 h-4"></i>
+          Subscribe — Jiandikishe
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {% for post in jarida_posts[:3] %}
+          <article class="group flex flex-col gap-3 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-green-700/50 transition-all duration-200 hover:-translate-y-0.5">
+            <div class="flex items-center justify-between">
+              {% if post.tags %}
+                <div class="flex gap-1">
+                  {% for tag in post.tags[:2] %}
+                    <span class="px-2 py-0.5 rounded bg-green-900/30 text-xs font-mono text-green-400">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}<div></div>{% endif %}
+              <span class="text-xs font-mono text-gray-600">{{ post.published_at.strftime('%b %d') if post.published_at else '' }}</span>
+            </div>
+            <h3 class="font-heading font-semibold text-gray-100 group-hover:text-green-300 transition-colors leading-snug">
+              {{ post.title }}
+            </h3>
+            <p class="text-sm font-body text-gray-500 flex-1 line-clamp-2 leading-relaxed">{{ post.excerpt or '' }}</p>
+            <a href="{{ post.url or 'https://jaridalachisa.substack.com' }}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 text-xs font-mono text-green-400 hover:text-green-300 transition-colors">
+              Soma zaidi <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </article>
+        {% else %}
+          <div class="col-span-full text-center py-12">
+            <p class="text-sm font-body text-gray-500">Visit Substack for the latest issues.</p>
+            <a href="https://jaridalachisa.substack.com" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 mt-3 text-sm font-mono text-green-400 hover:text-green-300 transition-colors">
+              Visit Jarida La Hisa <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================
+       SECTION 3: GITHUB / OPEN SOURCE
+       ================================================================ -->
+  <section class="py-16 border-b border-bg-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="github" class="w-4 h-4 text-gray-400"></i>
+            <p class="text-xs font-mono text-gray-400 uppercase tracking-widest">Open Source</p>
+          </div>
+          <h2 class="font-heading font-bold text-3xl text-gray-50">GitHub</h2>
+          <p class="text-sm font-body text-gray-500 mt-2">Publicly available repositories and tools.</p>
+        </div>
+        <a href="https://github.com/lagobrian" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-bg-800 hover:bg-bg-700 border border-bg-600 text-sm font-mono text-gray-300 hover:text-gray-100 transition-all shrink-0">
+          <i data-lucide="github" class="w-4 h-4"></i>
+          View all on GitHub
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for repo in repos %}
+          <a href="{{ repo.html_url or repo.url or '#' }}" target="_blank" rel="noopener noreferrer"
+             class="group flex flex-col gap-3 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-gray-500 transition-all duration-200 hover:-translate-y-0.5">
+            <div class="flex items-start justify-between gap-3">
+              <i data-lucide="book" class="w-4 h-4 text-gray-500 group-hover:text-gold-400 transition-colors shrink-0 mt-0.5"></i>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors shrink-0"></i>
+            </div>
+            <h3 class="font-mono font-semibold text-gray-100 group-hover:text-gold-300 transition-colors text-sm">
+              {{ repo.name }}
+            </h3>
+            <p class="text-xs font-body text-gray-500 flex-1 line-clamp-2 leading-relaxed">
+              {{ repo.description or 'No description.' }}
+            </p>
+            <div class="flex items-center gap-3 text-xs font-mono text-gray-600">
+              {% if repo.language %}
+                <span class="flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                  {{ repo.language }}
+                </span>
+              {% endif %}
+              {% if repo.stargazers_count is defined %}
+                <span class="flex items-center gap-1">
+                  <i data-lucide="star" class="w-3 h-3"></i>
+                  {{ repo.stargazers_count }}
+                </span>
+              {% elif repo.stars is defined %}
+                <span class="flex items-center gap-1">
+                  <i data-lucide="star" class="w-3 h-3"></i>
+                  {{ repo.stars }}
+                </span>
+              {% endif %}
+            </div>
+          </a>
+        {% else %}
+          {% for i in range(6) %}
+            <div class="p-5 rounded-xl bg-bg-800 border border-bg-700 animate-pulse">
+              <div class="h-3 bg-bg-700 rounded w-2/3 mb-4"></div>
+              <div class="h-3 bg-bg-700 rounded mb-2"></div>
+              <div class="h-3 bg-bg-700 rounded w-1/2"></div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================
+       SECTION 4: NOTEBOOKS
+       ================================================================ -->
+  {% if notebooks %}
+  <section class="py-16 border-b border-bg-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-10">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="book-open" class="w-4 h-4 text-blue-400"></i>
+          <p class="text-xs font-mono text-blue-400 uppercase tracking-widest">Interactive</p>
+        </div>
+        <h2 class="font-heading font-bold text-3xl text-gray-50">Notebooks</h2>
+        <p class="text-sm font-body text-gray-500 mt-2">Jupyter notebooks with interactive analyses and tutorials.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for nb in notebooks %}
+          <a href="{{ nb.url or nb.colab_url or '#' }}" target="_blank" rel="noopener noreferrer"
+             class="group flex flex-col gap-3 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-blue-700/50 transition-all duration-200 hover:-translate-y-0.5">
+            <div class="w-8 h-8 rounded-lg bg-orange-600/20 flex items-center justify-center">
+              <i data-lucide="book-open" class="w-4 h-4 text-orange-400"></i>
+            </div>
+            <h3 class="font-mono font-semibold text-sm text-gray-100 group-hover:text-gold-300 transition-colors leading-snug">
+              {{ nb.title or nb.name }}
+            </h3>
+            {% if nb.description %}
+              <p class="text-xs font-body text-gray-500 line-clamp-2 leading-relaxed">{{ nb.description }}</p>
+            {% endif %}
+            <div class="flex items-center gap-2 text-xs font-mono text-blue-400">
+              Open in Colab <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+
+  <!-- ================================================================
+       SECTION 5: ACADEMIC WRITING
+       ================================================================ -->
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-2xl mx-auto text-center">
+        <div class="w-12 h-12 rounded-xl bg-bg-800 border border-bg-700 flex items-center justify-center mx-auto mb-6">
+          <i data-lucide="file-text" class="w-5 h-5 text-gold-400"></i>
+        </div>
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Academic Research</p>
+        <h2 class="font-heading font-bold text-3xl text-gray-50 mb-4">Academic Writing</h2>
+        <p class="text-base font-body text-gray-400 leading-relaxed mb-6">
+          35+ research papers and academic works across quantitative finance, econometrics,
+          and financial machine learning. Many are covered under NDA agreements with institutional clients.
+        </p>
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-bg-800 border border-bg-700 text-xs font-mono text-gray-500 mb-8">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+          35+ papers — NDA / Confidential
+        </div>
+        <p class="text-sm font-body text-gray-500 mb-6">
+          Interested in collaborating on research or require custom academic work?
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="{{ url_for('public.contact') }}"
+             class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+            Get in Touch <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="{{ url_for('public.samples') }}"
+             class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gold-600 text-gold-400 hover:bg-gold-500 hover:text-black font-heading font-semibold text-sm transition-all">
+            View Work Samples <i data-lucide="download" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+{% endblock %}

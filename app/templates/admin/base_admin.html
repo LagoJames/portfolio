@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin CRM{% endblock %} — Lago Brian</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script>
+    window.tailwindConfig = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: {
+              950: '#05050a',
+              900: '#0a0a0f',
+              800: '#111118',
+              700: '#18181f',
+              600: '#21212b',
+            },
+            gold: {
+              200: '#fef3c7',
+              300: '#fde68a',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            },
+          },
+          fontFamily: {
+            heading: ['"Space Grotesk"', 'sans-serif'],
+            mono:    ['"IBM Plex Mono"', 'monospace'],
+            body:    ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in':    'fadeIn 0.5s ease-in-out',
+            'slide-up':   'slideUp 0.6s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeIn:  { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <script>tailwind.config = window.tailwindConfig;</script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Portfolio CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portfolio.css') }}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-bg-900 text-gray-100 font-body antialiased" x-data="{ sidebarOpen: window.innerWidth >= 1024 }">
+
+<!-- ===== LAYOUT WRAPPER ===== -->
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    class="fixed inset-y-0 left-0 z-40 w-64 bg-bg-950 border-r border-bg-700 flex flex-col transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:flex-shrink-0"
+  >
+    <!-- Sidebar Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-bg-700">
+      <a href="/admin/" class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded bg-gold-500 flex items-center justify-center text-bg-950 font-heading font-bold text-sm">LB</span>
+        <span class="font-heading font-semibold text-white text-sm tracking-wide">Admin CRM</span>
+      </a>
+      <button @click="sidebarOpen = false" class="lg:hidden text-gray-400 hover:text-white">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Nav Links -->
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+
+      <!-- Portfolio Section -->
+      <p class="px-3 pt-1 pb-2 text-xs font-mono text-gray-500 uppercase tracking-widest">Portfolio</p>
+
+      <a href="/admin/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if request.path == '/admin/' %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-gold-400"></i>
+        Dashboard
+      </a>
+
+      <a href="/admin/projects/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/projects' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="folder-open" class="w-4 h-4 text-gold-400"></i>
+        Projects
+      </a>
+
+      <a href="/admin/testimonials/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/testimonials' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="quote" class="w-4 h-4 text-gold-400"></i>
+        Testimonials
+      </a>
+
+      <a href="/admin/notebooks/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/notebooks' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="book-open" class="w-4 h-4 text-gold-400"></i>
+        Notebooks
+      </a>
+
+      <a href="/admin/skills/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/skills' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="zap" class="w-4 h-4 text-gold-400"></i>
+        Skills
+      </a>
+
+      <a href="/admin/blog/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/blog' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="pen-line" class="w-4 h-4 text-gold-400"></i>
+        Blog
+      </a>
+
+      <a href="/admin/contacts/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/contacts' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="mail" class="w-4 h-4 text-gold-400"></i>
+        Contacts
+        {% if unread_contacts_count is defined and unread_contacts_count > 0 %}
+          <span class="ml-auto bg-red-600 text-white text-xs font-mono font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">{{ unread_contacts_count }}</span>
+        {% endif %}
+      </a>
+
+      <a href="/admin/hire-requests/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/hire-requests' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="briefcase" class="w-4 h-4 text-gold-400"></i>
+        Hire Requests
+      </a>
+
+      <a href="/admin/active-projects/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/active-projects' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="rocket" class="w-4 h-4 text-gold-400"></i>
+        Active Projects
+      </a>
+
+      <a href="/admin/reviews/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/reviews' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="star" class="w-4 h-4 text-gold-400"></i>
+        Reviews
+      </a>
+
+      <a href="/admin/settings/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if '/admin/settings' in request.path %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="settings" class="w-4 h-4 text-gold-400"></i>
+        Settings
+      </a>
+
+      <!-- Divider -->
+      <div class="my-3 border-t border-bg-700"></div>
+
+      <!-- PM Section -->
+      <p class="px-3 pt-1 pb-2 text-xs font-mono text-gray-500 uppercase tracking-widest">Project Management</p>
+
+      <a href="/admin/pm/"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-bg-700 hover:text-white transition-colors {% if request.path == '/admin/pm/' %}bg-bg-700 text-white{% endif %}">
+        <i data-lucide="kanban" class="w-4 h-4 text-purple-400"></i>
+        PM Dashboard
+      </a>
+
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="px-4 py-3 border-t border-bg-700 text-xs text-gray-500 font-mono">
+      v1.0 · Lago Brian CRM
+    </div>
+  </aside>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div
+    x-show="sidebarOpen"
+    x-transition:enter="transition-opacity duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition-opacity duration-300"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="sidebarOpen = false"
+    class="fixed inset-0 z-30 bg-black/60 lg:hidden"
+    style="display:none"
+  ></div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Top Bar -->
+    <header class="bg-bg-800 border-b border-bg-700 px-5 py-3 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <button @click="sidebarOpen = !sidebarOpen" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <span class="font-heading font-semibold text-white text-sm tracking-wide">
+          {% block topbar_title %}CRM{% endblock %}
+        </span>
+      </div>
+      <div class="flex items-center gap-4 text-sm">
+        {% if current_user and current_user.is_authenticated %}
+          <span class="text-gray-400 font-mono text-xs hidden sm:block">{{ current_user.email }}</span>
+          <a href="/admin/logout" class="flex items-center gap-1.5 text-gray-400 hover:text-red-400 transition-colors text-xs font-mono">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            Logout
+          </a>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="px-6 pt-4 space-y-2 flex-shrink-0" x-data="{ show: true }" x-show="show">
+          {% for category, message in messages %}
+            <div class="flex items-start justify-between gap-3 px-4 py-3 rounded-lg border text-sm font-body
+              {% if category == 'error' %}bg-red-950/60 border-red-700/50 text-red-200
+              {% elif category == 'success' %}bg-green-950/60 border-green-700/50 text-green-200
+              {% elif category == 'warning' %}bg-yellow-950/60 border-yellow-700/50 text-yellow-200
+              {% else %}bg-bg-700 border-bg-600 text-gray-200{% endif %}">
+              <span>{{ message }}</span>
+              <button @click="show = false" class="opacity-60 hover:opacity-100 ml-2 flex-shrink-0">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Page Content -->
+    <main class="flex-1 overflow-y-auto p-6">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div><!-- /main content -->
+</div><!-- /layout wrapper -->
+
+<script>
+  // Initialize Lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

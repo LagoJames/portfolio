@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} — Lago Brian{% endblock %}
+{% block meta_description %}{{ post.excerpt or post.title }}{% endblock %}
+{% block og_title %}{{ post.title }} — Lago Brian{% endblock %}
+{% block og_description %}{{ post.excerpt or '' }}{% endblock %}
+{% block og_image %}{% if post.cover_image_url %}/uploads/blog/{{ post.cover_image_url }}{% else %}{{ super() }}{% endif %}{% endblock %}
+
+{% block extra_head %}
+<!-- Syntax highlighting for any code blocks in post content -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) { hljs.highlightElement(el); });
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+
+{# -- Category colour tokens (mirrors blog.html) -- #}
+{% set cat = post.category | default('Thoughts') %}
+{% if cat == 'Books' %}
+  {% set badge_classes = 'bg-amber-900/30 text-amber-400 border-amber-800/40' %}
+  {% set accent        = 'text-amber-400' %}
+{% elif cat == 'Music' %}
+  {% set badge_classes = 'bg-purple-900/30 text-purple-400 border-purple-800/40' %}
+  {% set accent        = 'text-purple-400' %}
+{% elif cat == 'Movies' %}
+  {% set badge_classes = 'bg-red-900/30 text-red-400 border-red-800/40' %}
+  {% set accent        = 'text-red-400' %}
+{% elif cat == 'Technology' %}
+  {% set badge_classes = 'bg-blue-900/30 text-blue-400 border-blue-800/40' %}
+  {% set accent        = 'text-blue-400' %}
+{% elif cat == 'Markets' %}
+  {% set badge_classes = 'bg-green-900/30 text-green-400 border-green-800/40' %}
+  {% set accent        = 'text-green-400' %}
+{% elif cat == 'Life' %}
+  {% set badge_classes = 'bg-rose-900/30 text-rose-400 border-rose-800/40' %}
+  {% set accent        = 'text-rose-400' %}
+{% else %}
+  {% set badge_classes = 'bg-gold-900/30 text-gold-400 border-gold-800/40' %}
+  {% set accent        = 'text-gold-400' %}
+{% endif %}
+
+
+<!-- ================================================================
+     HEADER AREA
+     ================================================================ -->
+<div class="pt-24 pb-0 bg-bg-950">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Back Link -->
+    <a href="{{ url_for('public.blog') }}"
+       class="inline-flex items-center gap-2 text-sm font-mono text-gray-500 hover:text-gold-400 transition-colors mb-8">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      All Posts
+    </a>
+
+    <!-- Cover Image -->
+    {% if post.cover_image_url %}
+      <div class="rounded-2xl overflow-hidden mb-8 border border-bg-700">
+        <img
+          src="/uploads/blog/{{ post.cover_image_url }}"
+          alt="{{ post.title }}"
+          class="w-full h-64 sm:h-80 lg:h-[26rem] object-cover" />
+      </div>
+    {% endif %}
+
+    <!-- Meta Row: category + date + read time -->
+    <div class="flex flex-wrap items-center gap-3 mb-5">
+      <span class="px-3 py-1.5 rounded-full border text-xs font-mono {{ badge_classes }}">
+        {{ cat }}
+      </span>
+
+      {% if post.published_at %}
+        <span class="flex items-center gap-1.5 text-xs font-mono text-gray-500">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          {{ post.published_at.strftime('%B %d, %Y') }}
+        </span>
+      {% endif %}
+
+      {% if post.read_time_minutes %}
+        <span class="flex items-center gap-1.5 text-xs font-mono text-gray-500">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+          {{ post.read_time_minutes }} min read
+        </span>
+      {% endif %}
+
+      {% if post.is_featured %}
+        <span class="flex items-center gap-1.5 text-xs font-mono text-gold-500">
+          <i data-lucide="star" class="w-3.5 h-3.5 fill-gold-500"></i>
+          Featured
+        </span>
+      {% endif %}
+    </div>
+
+    <!-- Tags -->
+    {% if post.tags %}
+      {% set tag_list = post.tags.split(',') if post.tags is string else post.tags %}
+      <div class="flex flex-wrap gap-2 mb-5">
+        {% for tag in tag_list %}
+          <span class="px-2.5 py-1 rounded-md bg-bg-800 border border-bg-600 text-xs font-mono text-gray-400">
+            #{{ tag | trim }}
+          </span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Post Title -->
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl lg:text-5xl text-gray-50 leading-tight pb-10 border-b border-bg-700">
+      {{ post.title }}
+    </h1>
+
+  </div>
+</div>
+
+
+<!-- ================================================================
+     POST CONTENT
+     ================================================================ -->
+<div class="bg-bg-900 py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12 items-start">
+
+      <!-- Main content column -->
+      <div>
+        <div class="prose prose-invert prose-lg max-w-none
+                    prose-headings:font-heading prose-headings:font-bold prose-headings:text-gray-100
+                    prose-p:font-body prose-p:text-gray-400 prose-p:leading-relaxed
+                    prose-a:text-gold-400 prose-a:no-underline hover:prose-a:text-gold-300 prose-a:transition-colors
+                    prose-strong:text-gray-200 prose-strong:font-semibold
+                    prose-em:text-gray-300
+                    prose-code:font-mono prose-code:text-gold-300 prose-code:bg-bg-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
+                    prose-pre:bg-bg-800 prose-pre:border prose-pre:border-bg-600 prose-pre:rounded-xl
+                    prose-blockquote:border-l-4 prose-blockquote:border-gold-600 prose-blockquote:text-gray-400 prose-blockquote:not-italic prose-blockquote:bg-bg-800/50 prose-blockquote:rounded-r-lg prose-blockquote:py-1
+                    prose-ul:text-gray-400 prose-ol:text-gray-400
+                    prose-li:marker:text-gold-500
+                    prose-hr:border-bg-700
+                    prose-img:rounded-xl prose-img:border prose-img:border-bg-700">
+          {{ content_html }}
+        </div>
+
+        <!-- ================================================================
+             SHARE LINKS
+             ================================================================ -->
+        <div class="mt-14 pt-10 border-t border-bg-700">
+          <p class="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4">Share this post</p>
+          <div class="flex flex-wrap gap-3">
+
+            <!-- Twitter / X -->
+            {% set share_text = post.title | urlencode %}
+            {% set share_url  = request.url | urlencode %}
+            <a href="https://twitter.com/intent/tweet?text={{ share_text }}&url={{ share_url }}&via=lagobrian"
+               target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-bg-800 border border-bg-600 hover:border-gray-500 text-xs font-mono text-gray-400 hover:text-white transition-all">
+              <!-- X (Twitter) icon via Lucide substitution -->
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.261 5.636 5.903-5.636Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              Share on X
+            </a>
+
+            <!-- Copy Link (Alpine) -->
+            <button
+              x-data="{ copied: false }"
+              @click="
+                navigator.clipboard.writeText('{{ request.url }}');
+                copied = true;
+                setTimeout(() => copied = false, 2000);
+              "
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 text-xs font-mono text-gray-400 hover:text-gold-400 transition-all">
+              <i data-lucide="link" class="w-3.5 h-3.5"></i>
+              <span x-text="copied ? 'Copied!' : 'Copy link'">Copy link</span>
+            </button>
+
+          </div>
+        </div>
+      </div><!-- /main column -->
+
+      <!-- Sticky sidebar -->
+      <aside class="lg:sticky lg:top-8 flex flex-col gap-5">
+
+        <!-- Author card -->
+        <div class="p-5 rounded-xl bg-bg-800 border border-bg-700">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gold-500/20 border border-gold-700/40 flex items-center justify-center font-heading font-bold text-gold-400 text-sm shrink-0">
+              LB
+            </div>
+            <div>
+              <p class="text-sm font-heading font-semibold text-gray-100">Lago Brian</p>
+              <p class="text-xs font-mono text-gray-500">Financial Engineer</p>
+            </div>
+          </div>
+          <p class="text-xs font-body text-gray-500 leading-relaxed">
+            Writing about finance, technology, and the things that shape how I see the world.
+          </p>
+        </div>
+
+        <!-- Post meta card -->
+        <div class="p-5 rounded-xl bg-bg-800 border border-bg-700">
+          <h3 class="text-xs font-mono font-semibold text-gray-500 uppercase tracking-widest mb-4">Post Info</h3>
+          <div class="flex flex-col gap-3 text-sm">
+            <div class="flex justify-between">
+              <span class="font-body text-gray-500">Category</span>
+              <span class="font-mono {{ accent }}">{{ cat }}</span>
+            </div>
+            {% if post.published_at %}
+              <div class="flex justify-between">
+                <span class="font-body text-gray-500">Published</span>
+                <span class="font-mono text-gray-300">{{ post.published_at.strftime('%b %d, %Y') }}</span>
+              </div>
+            {% endif %}
+            {% if post.read_time_minutes %}
+              <div class="flex justify-between">
+                <span class="font-body text-gray-500">Read time</span>
+                <span class="font-mono text-gray-300">{{ post.read_time_minutes }} min</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Back to blog -->
+        <a href="{{ url_for('public.blog') }}"
+           class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 text-sm font-mono text-gray-400 hover:text-gold-400 transition-all">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          All Posts
+        </a>
+
+      </aside>
+    </div><!-- /grid -->
+
+
+    <!-- ================================================================
+         RELATED POSTS
+         ================================================================ -->
+    {% if related_posts %}
+      <div class="mt-16 pt-12 border-t border-bg-700">
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">More from {{ cat }}</p>
+        <h2 class="font-heading font-bold text-2xl text-gray-100 mb-8">Related Posts</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {% for rp in related_posts[:3] %}
+            <a href="{{ url_for('public.blog_detail', slug=rp.slug) }}"
+               class="group flex flex-col gap-3 p-5 rounded-xl bg-bg-800 border border-bg-700 hover:border-gold-700/50 transition-all duration-200 hover:-translate-y-0.5">
+
+              {% if rp.cover_image_url %}
+                <div class="h-28 rounded-lg overflow-hidden bg-bg-700">
+                  <img src="/uploads/blog/{{ rp.cover_image_url }}"
+                       alt="{{ rp.title }}"
+                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                       loading="lazy" />
+                </div>
+              {% endif %}
+
+              <span class="text-xs font-mono {{ accent }}">{{ rp.category | default('Thoughts') }}</span>
+
+              <h3 class="font-heading font-semibold text-sm text-gray-100 group-hover:text-gold-300 transition-colors leading-snug">
+                {{ rp.title }}
+              </h3>
+
+              {% if rp.excerpt %}
+                <p class="text-xs font-body text-gray-500 line-clamp-2 leading-relaxed">{{ rp.excerpt }}</p>
+              {% endif %}
+
+              <div class="flex items-center gap-2 text-xs font-mono text-gray-600 mt-auto pt-1">
+                <i data-lucide="calendar" class="w-3 h-3"></i>
+                {{ rp.published_at.strftime('%b %d, %Y') if rp.published_at else '—' }}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

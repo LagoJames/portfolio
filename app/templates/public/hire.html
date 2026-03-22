@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Hire Me — Lago Brian{% endblock %}
+{% block meta_description %}Start a project with Lago Brian. Submit your project details, payment preferences, and files to kick things off.{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="pt-24 pb-10 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <a href="{{ url_for('public.contact') }}" class="inline-flex items-center gap-2 text-sm font-mono text-gray-500 hover:text-gold-400 transition-colors mb-6">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Back to Contact
+    </a>
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Project Brief</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-3">Start a Project</h1>
+    <p class="text-base font-body text-gray-400">
+      Fill out the brief below — the more detail, the faster I can review and respond.
+    </p>
+  </div>
+</div>
+
+<div class="bg-bg-900 py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <form action="{{ url_for('public.hire') }}" method="POST" enctype="multipart/form-data"
+          class="flex flex-col gap-10"
+          x-data="{
+            anonymous: false,
+            paymentMethod: 'stripe',
+            pricingType: 'fixed',
+            paymentSchedule: 'deposit',
+            showDeposit: false,
+            files: [],
+            dragging: false,
+            handleFiles(e) {
+              const newFiles = e.dataTransfer ? Array.from(e.dataTransfer.files) : Array.from(e.target.files);
+              this.files = [...this.files, ...newFiles];
+            },
+            removeFile(i) { this.files.splice(i, 1); },
+          }">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- ====== SECTION 1: YOUR INFORMATION ====== -->
+      <div class="rounded-2xl bg-bg-800 border border-bg-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-bg-700 flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold-500 text-black font-mono font-bold text-xs">1</span>
+          <h2 class="font-heading font-semibold text-gray-100">Your Information</h2>
+        </div>
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+          <div class="flex flex-col gap-1.5" x-show="!anonymous">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Full Name *</label>
+            <input type="text" name="client_name" :required="!anonymous"
+                   class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600"
+                   placeholder="Jane Doe" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Email Address *</label>
+            <input type="email" name="client_email" required
+                   class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600"
+                   placeholder="jane@example.com" />
+          </div>
+
+          <div class="flex flex-col gap-1.5" x-show="!anonymous">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Phone (optional)</label>
+            <input type="tel" name="client_phone"
+                   class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600"
+                   placeholder="+254 7XX XXX XXX" />
+          </div>
+
+          <!-- Anonymity toggle -->
+          <div class="flex flex-col gap-2 sm:col-span-2">
+            <label class="flex items-center gap-3 cursor-pointer w-fit">
+              <div class="relative">
+                <input type="checkbox" name="anonymous" x-model="anonymous" class="sr-only" />
+                <div class="w-10 h-6 rounded-full transition-colors"
+                     :class="anonymous ? 'bg-gold-500' : 'bg-bg-600'">
+                </div>
+                <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
+                     :class="anonymous ? 'translate-x-4' : 'translate-x-0'">
+                </div>
+              </div>
+              <span class="text-sm font-body text-gray-300">Submit anonymously</span>
+              <span class="text-xs font-mono text-gray-600">(only email required)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ====== SECTION 2: PROJECT DETAILS ====== -->
+      <div class="rounded-2xl bg-bg-800 border border-bg-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-bg-700 flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold-500 text-black font-mono font-bold text-xs">2</span>
+          <h2 class="font-heading font-semibold text-gray-100">Project Details</h2>
+        </div>
+        <div class="p-6 flex flex-col gap-5">
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Project Title *</label>
+            <input type="text" name="project_title" required
+                   class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600"
+                   placeholder="e.g. Options Pricing Dashboard with Greeks" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Project Description *</label>
+            <textarea name="project_description" required rows="6"
+                      class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600 resize-none"
+                      placeholder="Describe the problem you want to solve, the context, the data available, and any constraints or preferences..."></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider flex items-center gap-2">
+              AI Summary / Task Description
+              <span class="px-1.5 py-0.5 rounded bg-bg-600 text-gray-500 text-xs">optional</span>
+            </label>
+            <textarea name="ai_summary" rows="3"
+                      class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-mono text-gray-400 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600 resize-none"
+                      placeholder="Paste an AI-generated description or summary of the task here..."></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Expected Deliverables *</label>
+            <textarea name="deliverables" required rows="4"
+                      class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-body text-gray-200 focus:outline-none focus:border-gold-500 transition-colors placeholder-gray-600 resize-none"
+                      placeholder="List the specific outputs you expect — e.g.:&#10;- Python script with Black-Scholes pricing&#10;- Greeks calculation (Delta, Gamma, Vega, Theta)&#10;- Streamlit dashboard&#10;- Full documentation"></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Deadline</label>
+            <input type="date" name="deadline"
+                   class="bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-sm font-mono text-gray-200 focus:outline-none focus:border-gold-500 transition-colors w-full sm:w-auto"
+                   min="{{ now.strftime('%Y-%m-%d') if now else '' }}" />
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ====== SECTION 3: PAYMENT ====== -->
+      <div class="rounded-2xl bg-bg-800 border border-bg-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-bg-700 flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold-500 text-black font-mono font-bold text-xs">3</span>
+          <h2 class="font-heading font-semibold text-gray-100">Payment</h2>
+        </div>
+        <div class="p-6 flex flex-col gap-6">
+
+          <!-- Payment Method -->
+          <div class="flex flex-col gap-2.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Payment Method</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {% for method, icon, label in [
+                ('card', 'credit-card', 'Card'),
+                ('mpesa', 'smartphone', 'M-Pesa / IntaSend'),
+                ('stripe', 'zap', 'Stripe'),
+                ('wise', 'globe', 'Wise'),
+              ] %}
+                <label class="flex flex-col items-center gap-2 p-4 rounded-xl bg-bg-700 border cursor-pointer transition-all"
+                       :class="paymentMethod === '{{ method }}' ? 'border-gold-500 bg-gold-900/10' : 'border-bg-600 hover:border-bg-500'">
+                  <input type="radio" name="payment_method" value="{{ method }}" x-model="paymentMethod" class="sr-only" />
+                  <i data-lucide="{{ icon }}" class="w-5 h-5 transition-colors"
+                     :class="paymentMethod === '{{ method }}' ? 'text-gold-400' : 'text-gray-500'"></i>
+                  <span class="text-xs font-mono text-center transition-colors"
+                        :class="paymentMethod === '{{ method }}' ? 'text-gold-300' : 'text-gray-400'">
+                    {{ label }}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Pricing Type -->
+          <div class="flex flex-col gap-2.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Pricing Type</label>
+            <div class="flex gap-2">
+              {% for ptype, plabel in [('hourly', 'Hourly Rate'), ('fixed', 'Fixed Price')] %}
+                <label class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-bg-700 border cursor-pointer transition-all"
+                       :class="pricingType === '{{ ptype }}' ? 'border-gold-500 text-gold-400' : 'border-bg-600 text-gray-400 hover:border-bg-500'">
+                  <input type="radio" name="pricing_type" value="{{ ptype }}" x-model="pricingType" class="sr-only" />
+                  <span class="text-xs font-mono">{{ plabel }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Payment Schedule -->
+          <div class="flex flex-col gap-2.5">
+            <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Payment Schedule</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {% for schedule, slabel in [
+                ('once', 'One-Time'),
+                ('installments', 'Installments'),
+                ('deposit', '50% Deposit'),
+                ('end_of_job', 'On Completion'),
+              ] %}
+                <label class="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-bg-700 border cursor-pointer transition-all"
+                       :class="paymentSchedule === '{{ schedule }}' ? 'border-gold-500 text-gold-400' : 'border-bg-600 text-gray-400 hover:border-bg-500'">
+                  <input type="radio" name="payment_schedule" value="{{ schedule }}" x-model="paymentSchedule" class="sr-only" />
+                  <span class="text-xs font-mono">{{ slabel }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Amounts -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Total Amount (USD)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-mono text-sm">$</span>
+                <input type="number" name="total_amount" min="0" step="0.01"
+                       class="bg-bg-700 border border-bg-600 rounded-lg pl-7 pr-4 py-2.5 text-sm font-mono text-gray-200 focus:outline-none focus:border-gold-500 transition-colors w-full placeholder-gray-600"
+                       placeholder="0.00" />
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5" x-show="paymentSchedule === 'deposit' || paymentSchedule === 'installments'">
+              <label class="text-xs font-mono text-gray-400 uppercase tracking-wider">Deposit / First Payment (USD)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-mono text-sm">$</span>
+                <input type="number" name="deposit_amount" min="0" step="0.01"
+                       class="bg-bg-700 border border-bg-600 rounded-lg pl-7 pr-4 py-2.5 text-sm font-mono text-gray-200 focus:outline-none focus:border-gold-500 transition-colors w-full placeholder-gray-600"
+                       placeholder="0.00" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ====== SECTION 4: FILE UPLOAD ====== -->
+      <div class="rounded-2xl bg-bg-800 border border-bg-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-bg-700 flex items-center gap-3">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold-500 text-black font-mono font-bold text-xs">4</span>
+          <h2 class="font-heading font-semibold text-gray-100">Supporting Files</h2>
+          <span class="text-xs font-mono text-gray-500 ml-1">optional</span>
+        </div>
+        <div class="p-6">
+          <!-- Drag & Drop Area -->
+          <div class="relative border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer"
+               :class="dragging ? 'border-gold-500 bg-gold-900/10' : 'border-bg-600 hover:border-bg-500'"
+               @dragover.prevent="dragging = true"
+               @dragleave="dragging = false"
+               @drop.prevent="dragging = false; handleFiles($event)"
+               @click="$refs.fileInput.click()">
+            <div class="flex flex-col items-center justify-center gap-3 py-10 px-6 text-center">
+              <div class="w-12 h-12 rounded-full bg-bg-700 flex items-center justify-center">
+                <i data-lucide="upload-cloud" class="w-6 h-6 text-gray-500"></i>
+              </div>
+              <div>
+                <p class="text-sm font-body text-gray-300">
+                  <span class="text-gold-400 font-medium">Click to upload</span> or drag and drop
+                </p>
+                <p class="text-xs font-mono text-gray-600 mt-1">PDF, XLSX, CSV, PY, R, IPYNB, PNG, JPG — max 10MB each</p>
+              </div>
+            </div>
+            <input type="file" name="files" x-ref="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv,.py,.r,.ipynb,.png,.jpg,.jpeg,.zip"
+                   @change="handleFiles($event)"
+                   class="absolute inset-0 opacity-0 cursor-pointer" />
+          </div>
+
+          <!-- File list -->
+          <div x-show="files.length > 0" class="mt-4 flex flex-col gap-2">
+            <template x-for="(file, i) in files" :key="i">
+              <div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-bg-700 border border-bg-600">
+                <i data-lucide="file" class="w-4 h-4 text-gold-500 shrink-0"></i>
+                <span class="text-xs font-mono text-gray-300 flex-1 truncate" x-text="file.name"></span>
+                <span class="text-xs font-mono text-gray-600" x-text="(file.size / 1024).toFixed(0) + ' KB'"></span>
+                <button type="button" @click="removeFile(i)"
+                        class="w-5 h-5 rounded flex items-center justify-center text-gray-600 hover:text-red-400 transition-colors">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ====== SUBMIT ====== -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+        <p class="text-xs font-mono text-gray-600 max-w-sm">
+          By submitting you agree to be contacted about this project. No spam — ever.
+        </p>
+        <button type="submit"
+                class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-base transition-all shadow-2xl shadow-gold-900/40 hover:shadow-gold-700/50 hover:-translate-y-0.5 whitespace-nowrap">
+          Submit Project Brief
+          <i data-lucide="send" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

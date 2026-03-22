@@ -1,0 +1,202 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Settings{% endblock %}
+{% block topbar_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl space-y-6">
+
+  <div>
+    <h2 class="font-heading font-semibold text-2xl text-white">Settings</h2>
+    <p class="text-gray-500 text-xs font-mono mt-0.5">Site configuration and profile data</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('crm_settings.settings') }}" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ form.hidden_tag() if form is defined }}
+
+    <!-- ===== IDENTITY ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Identity</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="full_name">Full Name</label>
+          <input type="text" id="full_name" name="full_name"
+                 value="{{ settings.full_name if settings else 'Lago Brian' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="title">Professional Title</label>
+          <input type="text" id="title" name="title"
+                 value="{{ settings.title if settings else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Financial Engineer & Data Scientist" />
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="bio_short">Short Bio</label>
+        <textarea id="bio_short" name="bio_short" rows="2"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="One-line bio for the hero section">{{ settings.bio_short if settings else '' }}</textarea>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="bio_long">Full Bio</label>
+        <textarea id="bio_long" name="bio_long" rows="5"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="About section bio (Markdown supported)">{{ settings.bio_long if settings else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="email">Contact Email</label>
+          <input type="email" id="email" name="email"
+                 value="{{ settings.email if settings else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="hello@lagobrian.com" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="location">Location</label>
+          <input type="text" id="location" name="location"
+                 value="{{ settings.location if settings else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Nairobi, Kenya" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AVAILABILITY ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Availability</h3>
+
+      <div class="flex items-center gap-3 mb-3">
+        <input type="checkbox" id="is_available" name="is_available" value="1"
+               {{ 'checked' if settings and settings.is_available }}
+               class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+        <label for="is_available" class="text-sm text-gray-300">Currently available for hire</label>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="availability_note">Availability Note</label>
+        <input type="text" id="availability_note" name="availability_note"
+               value="{{ settings.availability_note if settings else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Open to freelance · Remote" />
+      </div>
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Hero Stats</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="stat_projects">Projects Completed</label>
+          <input type="number" id="stat_projects" name="stat_projects" min="0"
+                 value="{{ settings.stat_projects if settings else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 font-mono" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="stat_years">Years Experience</label>
+          <input type="number" id="stat_years" name="stat_years" min="0"
+                 value="{{ settings.stat_years if settings else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 font-mono" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="stat_clients">Happy Clients</label>
+          <input type="number" id="stat_clients" name="stat_clients" min="0"
+                 value="{{ settings.stat_clients if settings else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 font-mono" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EXTERNAL LINKS ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">External Links</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for field_id, label, placeholder in [
+          ('github_url',   'GitHub',   'https://github.com/lagobrian'),
+          ('linkedin_url', 'LinkedIn', 'https://linkedin.com/in/lagobrian'),
+          ('upwork_url',   'Upwork',   'https://upwork.com/freelancers/...'),
+          ('twitter_url',  'Twitter/X','https://x.com/lagobrian'),
+          ('kaggle_url',   'Kaggle',   'https://kaggle.com/...'),
+          ('cv_url',       'CV / Resume URL', 'https://...'),
+        ] %}
+          <div>
+            <label class="form-label block text-sm text-gray-300 mb-1.5" for="{{ field_id }}">{{ label }}</label>
+            <input type="url" id="{{ field_id }}" name="{{ field_id }}"
+                   value="{{ settings[field_id] if settings and settings[field_id] is defined else '' }}"
+                   class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                   placeholder="{{ placeholder }}" />
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ===== ASSETS ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Assets</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="avatar">Profile Photo</label>
+          {% if settings and settings.avatar_url %}
+            <img src="{{ settings.avatar_url }}" class="w-16 h-16 rounded-full object-cover mb-2 border border-bg-600" />
+          {% endif %}
+          <input type="file" id="avatar" name="avatar" accept="image/*"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 file:bg-bg-600 file:text-gray-300 file:border-0 file:rounded file:px-3 file:py-1 file:text-xs file:mr-3 file:cursor-pointer" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="cv_file">CV / Resume File</label>
+          {% if settings and settings.cv_filename %}
+            <p class="text-gray-400 text-xs font-mono mb-2">Current: {{ settings.cv_filename }}</p>
+          {% endif %}
+          <input type="file" id="cv_file" name="cv_file" accept=".pdf,.docx"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 file:bg-bg-600 file:text-gray-300 file:border-0 file:rounded file:px-3 file:py-1 file:text-xs file:mr-3 file:cursor-pointer" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SEO ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">SEO</h3>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="meta_title">Meta Title</label>
+        <input type="text" id="meta_title" name="meta_title"
+               value="{{ settings.meta_title if settings else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Lago Brian — Financial Engineer & Data Scientist" maxlength="60" />
+        <p class="text-gray-600 font-mono text-xs mt-1">Max 60 characters</p>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="meta_description">Meta Description</label>
+        <textarea id="meta_description" name="meta_description" rows="2" maxlength="160"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-none"
+                  placeholder="Quantitative research, algorithmic trading, and machine learning from Nairobi, Kenya.">{{ settings.meta_description if settings else '' }}</textarea>
+        <p class="text-gray-600 font-mono text-xs mt-1">Max 160 characters</p>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="keywords">Keywords <span class="text-gray-500 font-mono text-xs">(comma-separated)</span></label>
+        <input type="text" id="keywords" name="keywords"
+               value="{{ settings.keywords if settings else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="financial engineer, quant, machine learning, Kenya" />
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex gap-3 pt-2">
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+        <i data-lucide="save" class="w-4 h-4"></i> Save Settings
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

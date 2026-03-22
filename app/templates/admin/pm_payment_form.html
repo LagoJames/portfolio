@@ -1,0 +1,120 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if payment else 'Record' }} Payment{% endblock %}
+{% block topbar_title %}{{ 'Edit' if payment else 'Record' }} Payment{% endblock %}
+
+{% block content %}
+<div class="max-w-xl space-y-6">
+
+  <div class="flex items-center gap-4">
+    <a href="{{ '/admin/pm/projects/' ~ project_id ~ '/' if project_id else '/admin/pm/' }}"
+       class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if payment else 'Record' }} Payment</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_pm.edit_payment', payment_id=payment.id) if payment else url_for('crm_pm.new_payment', project_id=project_id) }}"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+    {% if project_id and not payment %}
+      <input type="hidden" name="project_id" value="{{ project_id }}" />
+    {% endif %}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="date">Payment Date <span class="text-red-400">*</span></label>
+          <input type="date" id="date" name="date" required
+                 value="{{ payment.date.strftime('%Y-%m-%d') if payment and payment.date else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="amount">Amount ($) <span class="text-red-400">*</span></label>
+          <input type="number" id="amount" name="amount" min="0" step="0.01" required
+                 value="{{ payment.amount if payment else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="0.00" />
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="payment_method">Payment Method <span class="text-red-400">*</span></label>
+        <select id="payment_method" name="payment_method" required
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          <option value="">— Select —</option>
+          {% for val, label in [
+            ('mpesa', 'M-Pesa'),
+            ('bank_transfer', 'Bank Transfer'),
+            ('paypal', 'PayPal'),
+            ('stripe', 'Stripe'),
+            ('wise', 'Wise'),
+            ('crypto', 'Crypto'),
+            ('cash', 'Cash'),
+            ('other', 'Other'),
+          ] %}
+            <option value="{{ val }}" {{ 'selected' if payment and payment.payment_method == val }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Invoice Link -->
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="invoice_id">Link to Invoice <span class="text-gray-500 font-mono text-xs">(optional)</span></label>
+        <select id="invoice_id" name="invoice_id"
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          <option value="">— None —</option>
+          {% if invoices %}
+            {% for inv in invoices %}
+              <option value="{{ inv.id }}" {{ 'selected' if payment and payment.invoice_id == inv.id }}>
+                {{ inv.invoice_number }} — ${{ '{:,.2f}'.format(inv.amount) if inv.amount else '0' }}
+              </option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="receipt_id">Receipt / Reference ID</label>
+        <input type="text" id="receipt_id" name="receipt_id"
+               value="{{ payment.receipt_id if payment else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="TXN-ABC123" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="Payment notes...">{{ payment.notes if payment else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if payment else 'Record Payment' }}
+        </button>
+        <a href="{{ '/admin/pm/projects/' ~ project_id ~ '/' if project_id else '/admin/pm/' }}"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if payment %}
+        <form method="POST" action="/admin/pm/payments/{{ payment.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this payment?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

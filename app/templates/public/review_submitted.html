@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Submitted — Lago Brian{% endblock %}
+{% block meta_description %}Your review has been submitted and is awaiting approval.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-bg-950 flex items-center justify-center px-4 py-24">
+  <div class="max-w-md w-full text-center">
+
+    <!-- Icon -->
+    <div class="relative mx-auto mb-8 w-20 h-20">
+      <div class="absolute inset-0 rounded-full bg-gold-500/10 animate-ping"></div>
+      <div class="relative w-20 h-20 rounded-full bg-gold-900/40 border border-gold-700/50 flex items-center justify-center">
+        <i data-lucide="message-square" class="w-9 h-9 text-gold-400"></i>
+      </div>
+    </div>
+
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Submitted</p>
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-4">Review Submitted!</h1>
+    <p class="text-base font-body text-gray-400 leading-relaxed mb-3">
+      Thank you for taking the time to leave a review. Your feedback is greatly appreciated.
+    </p>
+    <p class="text-sm font-body text-gray-500 mb-8">
+      Your review is currently <span class="text-gold-400 font-medium">awaiting approval</span> and
+      will appear on the project page once verified.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="{{ url_for('public.work') }}"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all shadow-lg shadow-gold-900/30">
+        View All Projects
+      </a>
+      <a href="{{ url_for('public.home') }}"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        Home
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog — Lago Brian{% endblock %}
+{% block meta_description %}Personal thoughts on books, music, movies, technology, markets, and life — by Lago Brian.{% endblock %}
+{% block og_title %}Blog — Lago Brian{% endblock %}
+{% block og_description %}Personal thoughts on books, music, movies, technology, markets, and life.{% endblock %}
+
+{% block content %}
+
+<!-- ================================================================
+     PAGE HEADER
+     ================================================================ -->
+<div class="pt-24 pb-12 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Personal Blog</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-4">Blog</h1>
+    <p class="text-base sm:text-lg font-body text-gray-400 max-w-2xl leading-relaxed">
+      Personal thoughts on books, music, movies, technology, markets, and life.
+      Not research — just honest writing about things that matter to me.
+    </p>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     BLOG CONTENT
+     ================================================================ -->
+<div class="bg-bg-900 py-14"
+     x-data="{
+       activeCategory: 'All',
+       categories: ['All', 'Thoughts', 'Books', 'Music', 'Movies', 'Technology', 'Markets', 'Life'],
+     }">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Category Filter Tabs -->
+    <div class="flex flex-wrap gap-2 mb-10">
+      <template x-for="cat in categories" :key="cat">
+        <button
+          @click="activeCategory = cat"
+          :class="activeCategory === cat
+            ? 'bg-gold-500 text-bg-950 border-gold-500'
+            : 'bg-bg-800 text-gray-400 border-bg-600 hover:border-gold-700 hover:text-gold-400'"
+          class="px-4 py-2 rounded-lg border text-xs font-mono font-medium transition-all duration-200"
+          x-text="cat">
+        </button>
+      </template>
+    </div>
+
+    <!-- Posts Grid -->
+    {% if posts %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for post in posts %}
+
+          {# -- per-category colour tokens -- #}
+          {% set cat = post.category | default('Thoughts') %}
+          {% if cat == 'Books' %}
+            {% set badge_classes = 'bg-amber-900/30 text-amber-400 border-amber-800/40' %}
+            {% set gradient     = 'from-amber-900/40 to-bg-800' %}
+            {% set hover_border = 'hover:border-amber-700/50' %}
+            {% set icon         = 'book-open' %}
+          {% elif cat == 'Music' %}
+            {% set badge_classes = 'bg-purple-900/30 text-purple-400 border-purple-800/40' %}
+            {% set gradient     = 'from-purple-900/40 to-bg-800' %}
+            {% set hover_border = 'hover:border-purple-700/50' %}
+            {% set icon         = 'music' %}
+          {% elif cat == 'Movies' %}
+            {% set badge_classes = 'bg-red-900/30 text-red-400 border-red-800/40' %}
+            {% set gradient     = 'from-red-900/40 to-bg-800' %}
+            {% set hover_border = 'hover:border-red-700/50' %}
+            {% set icon         = 'film' %}
+          {% elif cat == 'Technology' %}
+            {% set badge_classes = 'bg-blue-900/30 text-blue-400 border-blue-800/40' %}
+            {% set gradient     = 'from-blue-900/40 to-bg-800' %}
+            {% set hover_border = 'hover:border-blue-700/50' %}
+            {% set icon         = 'cpu' %}
+          {% elif cat == 'Markets' %}
+            {% set badge_classes = 'bg-green-900/30 text-green-400 border-green-800/40' %}
+            {% set gradient     = 'from-green-900/40 to-bg-800' %}
+            {% set hover_border = 'hover:border-green-700/50' %}
+            {% set icon         = 'trending-up' %}
+          {% elif cat == 'Life' %}
+            {% set badge_classes = 'bg-rose-900/30 text-rose-400 border-rose-800/40' %}
+            {% set gradient     = 'from-rose-900/40 to-bg-800' %}
+            {% set hover_border = 'hover:border-rose-700/50' %}
+            {% set icon         = 'sun' %}
+          {% else %}{# Thoughts / default #}
+            {% set badge_classes = 'bg-gold-900/30 text-gold-400 border-gold-800/40' %}
+            {% set gradient     = 'from-gold-900/30 to-bg-800' %}
+            {% set hover_border = 'hover:border-gold-700/50' %}
+            {% set icon         = 'pen-line' %}
+          {% endif %}
+
+          <article
+            class="group flex flex-col rounded-xl bg-bg-800 border border-bg-700 {{ hover_border }} overflow-hidden transition-all duration-200 hover:-translate-y-0.5"
+            :class="{ 'hidden': activeCategory !== 'All' && activeCategory !== '{{ cat }}' }">
+
+            <!-- Cover Image / Gradient Fallback -->
+            <div class="relative h-44 overflow-hidden">
+              {% if post.cover_image_url %}
+                <img
+                  src="/uploads/blog/{{ post.cover_image_url }}"
+                  alt="{{ post.title }}"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy" />
+                <div class="absolute inset-0 bg-gradient-to-t from-bg-900/60 to-transparent"></div>
+              {% else %}
+                <div class="w-full h-full bg-gradient-to-br {{ gradient }} flex items-center justify-center">
+                  <i data-lucide="{{ icon }}" class="w-10 h-10 text-gray-600 opacity-60"></i>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Card Body -->
+            <div class="flex flex-col flex-1 p-5 gap-3">
+
+              <!-- Category Badge -->
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded-full border text-xs font-mono {{ badge_classes }}">
+                  {{ cat }}
+                </span>
+                {% if post.is_featured %}
+                  <i data-lucide="star" class="w-3.5 h-3.5 text-gold-400 fill-gold-400" title="Featured"></i>
+                {% endif %}
+              </div>
+
+              <!-- Title -->
+              <h2 class="font-heading font-semibold text-lg text-gray-100 group-hover:text-gold-300 transition-colors leading-snug">
+                {{ post.title }}
+              </h2>
+
+              <!-- Excerpt -->
+              {% if post.excerpt %}
+                <p class="text-sm font-body text-gray-500 leading-relaxed line-clamp-2 flex-1">
+                  {{ post.excerpt }}
+                </p>
+              {% else %}
+                <div class="flex-1"></div>
+              {% endif %}
+
+              <!-- Footer: date + read time + link -->
+              <div class="flex items-center justify-between pt-2 border-t border-bg-700/60 mt-auto">
+                <div class="flex items-center gap-3 text-xs font-mono text-gray-600">
+                  <span>{{ post.published_at.strftime('%b %d, %Y') if post.published_at else 'Draft' }}</span>
+                  {% if post.read_time_minutes %}
+                    <span class="text-bg-600">·</span>
+                    <span>{{ post.read_time_minutes }} min read</span>
+                  {% endif %}
+                </div>
+                <a href="{{ url_for('public.blog_detail', slug=post.slug) }}"
+                   class="inline-flex items-center gap-1.5 text-xs font-mono text-gold-500 hover:text-gold-300 transition-colors">
+                  Read More <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+
+            </div>
+          </article>
+
+        {% endfor %}
+      </div>
+
+      <!-- Empty state shown when filter yields no results -->
+      <div
+        class="hidden py-20 text-center col-span-full"
+        x-show="
+          categories.filter(c => c !== 'All').every(c => {
+            return c === activeCategory
+              ? document.querySelectorAll('article:not(.hidden)').length === 0
+              : true;
+          }) && activeCategory !== 'All' &&
+          document.querySelectorAll('article:not(.hidden)').length === 0
+        ">
+        <i data-lucide="inbox" class="w-10 h-10 text-gray-600 mx-auto mb-3"></i>
+        <p class="text-sm font-body text-gray-500">No posts in this category yet.</p>
+      </div>
+
+    {% else %}
+      <!-- Global empty state (no posts at all) -->
+      <div class="py-24 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-bg-800 border border-bg-700 flex items-center justify-center mx-auto mb-6">
+          <i data-lucide="pen-line" class="w-7 h-7 text-gray-600"></i>
+        </div>
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Coming Soon</p>
+        <h2 class="font-heading font-bold text-2xl text-gray-200 mb-3">No posts yet</h2>
+        <p class="text-sm font-body text-gray-500 max-w-md mx-auto leading-relaxed">
+          I'm working on some writing. Check back soon — there will be thoughts on books,
+          music, markets, and whatever else is on my mind.
+        </p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

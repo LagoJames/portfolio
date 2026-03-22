@@ -1,0 +1,98 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Contacts{% endblock %}
+{% block topbar_title %}Contacts{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Contact Submissions</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">
+        {{ contacts | length }} total ·
+        <span class="text-red-400">{{ contacts | selectattr('is_read', 'equalto', false) | list | length }} unread</span>
+      </p>
+    </div>
+    <form method="POST" action="/admin/contacts/mark-all-read/">
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="check-check" class="w-4 h-4"></i> Mark All Read
+      </button>
+    </form>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Name</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Email</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Project Type</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Budget</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if contacts %}
+            {% for contact in contacts %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors cursor-pointer {{ 'bg-red-950/10' if not contact.is_read }}"
+                  onclick="window.location='/admin/contacts/{{ contact.id }}/'">
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-2">
+                    {% if not contact.is_read %}
+                      <span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>
+                    {% else %}
+                      <span class="w-2 h-2 flex-shrink-0"></span>
+                    {% endif %}
+                    <span class="text-white font-medium">{{ contact.name }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden md:table-cell">{{ contact.email }}</td>
+                <td class="px-5 py-3 text-gray-400 hidden lg:table-cell">{{ contact.project_type | default('—') }}</td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">{{ contact.budget | default('—') }}</td>
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs hidden md:table-cell">
+                  {{ contact.created_at.strftime('%b %d, %Y') if contact.created_at else '—' }}
+                </td>
+                <td class="px-5 py-3" onclick="">
+                  {% if not contact.is_read %}
+                    <span class="inline-flex items-center gap-1 bg-red-600/20 text-red-400 border border-red-600/30 text-xs font-mono px-2 py-0.5 rounded-full">
+                      <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Unread
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center gap-1 bg-bg-700 text-gray-500 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">
+                      Read
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-right" onclick="event.stopPropagation()">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/contacts/{{ contact.id }}/" class="text-gray-400 hover:text-gold-400 transition-colors" title="View">
+                      <i data-lucide="eye" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/contacts/{{ contact.id }}/delete/"
+                          onsubmit="return confirm('Delete this message?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors" title="Delete">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-5 py-10 text-center text-gray-500 font-mono text-sm">No contact submissions yet.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

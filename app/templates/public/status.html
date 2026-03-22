@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Current Status — Lago Brian{% endblock %}
+{% block meta_description %}Lago Brian's current availability, active projects, and work schedule.{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-bg-950 pt-28 pb-16">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Live Status</p>
+      <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-3">Current Status</h1>
+      <p class="text-sm font-mono text-gray-500">
+        Last updated: <span class="text-gray-400">{{ settings.updated_at.strftime('%B %d, %Y') if settings and settings.updated_at else 'Recently' }}</span>
+      </p>
+    </div>
+
+    <!-- Availability Card -->
+    <div class="p-6 rounded-2xl bg-bg-800 border border-bg-700 mb-6">
+      <h2 class="font-heading font-semibold text-gray-300 text-sm uppercase tracking-wider mb-4 font-mono">Availability</h2>
+
+      {% set status = settings.availability_status if settings else 'available' %}
+      {% if status == 'available' %}
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <div class="w-4 h-4 rounded-full bg-green-400 animate-ping absolute"></div>
+            <div class="w-4 h-4 rounded-full bg-green-400 relative"></div>
+          </div>
+          <div>
+            <p class="font-heading font-bold text-xl text-green-400">Available for Work</p>
+            <p class="text-sm font-body text-gray-500 mt-1">Actively taking on new projects and clients.</p>
+          </div>
+        </div>
+      {% elif status == 'limited' %}
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <div class="w-4 h-4 rounded-full bg-yellow-400 animate-ping absolute"></div>
+            <div class="w-4 h-4 rounded-full bg-yellow-400 relative"></div>
+          </div>
+          <div>
+            <p class="font-heading font-bold text-xl text-yellow-400">Limited Availability</p>
+            <p class="text-sm font-body text-gray-500 mt-1">Taking select projects. Reach out to discuss.</p>
+          </div>
+        </div>
+      {% else %}
+        <div class="flex items-center gap-3">
+          <div class="w-4 h-4 rounded-full bg-red-400"></div>
+          <div>
+            <p class="font-heading font-bold text-xl text-red-400">Currently Unavailable</p>
+            <p class="text-sm font-body text-gray-500 mt-1">Fully booked. Check back soon or get in touch.</p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if settings and settings.availability_note %}
+        <p class="mt-4 text-sm font-body text-gray-400 leading-relaxed border-t border-bg-700 pt-4">
+          {{ settings.availability_note }}
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- Current Project -->
+    {% if current_active_project %}
+      <div class="p-6 rounded-2xl bg-bg-800 border border-bg-700 mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <h2 class="font-heading font-semibold text-gray-300 text-sm uppercase tracking-wider font-mono">Currently Working On</h2>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-heading font-bold text-xl text-gray-100">{{ current_active_project.title }}</h3>
+
+          {% if current_active_project.category %}
+            <span class="w-fit px-3 py-1 rounded-full bg-bg-700 border border-bg-600 text-xs font-mono text-gold-400">
+              {{ current_active_project.category }}
+            </span>
+          {% endif %}
+
+          {% if current_active_project.short_description %}
+            <p class="text-sm font-body text-gray-400 leading-relaxed">
+              {{ current_active_project.short_description }}
+            </p>
+          {% endif %}
+
+          {% if current_active_project.is_public %}
+            <a href="{{ url_for('public.project_detail', slug=current_active_project.slug) }}"
+               class="inline-flex items-center gap-1.5 text-xs font-mono text-gold-500 hover:text-gold-300 transition-colors w-fit">
+              View project page <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Response Time & Work Details -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+      <div class="p-5 rounded-xl bg-bg-800 border border-bg-700">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="clock" class="w-4 h-4 text-gold-500"></i>
+          <h3 class="font-mono text-xs text-gray-400 uppercase tracking-wider">Response Time</h3>
+        </div>
+        <p class="font-heading font-bold text-2xl text-gray-100 mb-1">
+          {{ settings.response_time or '&lt; 24h' }}
+        </p>
+        <p class="text-xs font-body text-gray-500">Typical reply to new inquiries</p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-bg-800 border border-bg-700">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="map-pin" class="w-4 h-4 text-gold-500"></i>
+          <h3 class="font-mono text-xs text-gray-400 uppercase tracking-wider">Timezone</h3>
+        </div>
+        <p class="font-heading font-bold text-2xl text-gray-100 mb-1">EAT (UTC+3)</p>
+        <p class="text-xs font-body text-gray-500">Nairobi, Kenya — available globally</p>
+      </div>
+    </div>
+
+    <!-- Preferred work -->
+    <div class="p-6 rounded-2xl bg-bg-800 border border-bg-700 mb-8">
+      <h2 class="font-mono text-xs text-gray-400 uppercase tracking-wider mb-4">Currently Open To</h2>
+      <div class="flex flex-wrap gap-2">
+        {% for item in [
+          'Quantitative Research',
+          'Algorithmic Trading Systems',
+          'ML / Data Science',
+          'Academic Writing',
+          'Financial Modelling',
+          'Data Analysis',
+          'Consulting',
+        ] %}
+          <span class="px-3 py-1.5 rounded-full bg-bg-700 border border-bg-600 text-xs font-mono text-gray-300">
+            {{ item }}
+          </span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center">
+      <p class="text-sm font-body text-gray-500 mb-5">
+        Ready to start a conversation?
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <a href="{{ url_for('public.hire') }}"
+           class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all shadow-lg shadow-gold-900/30">
+          Submit a Project Brief <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+        <a href="{{ url_for('public.contact') }}"
+           class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+          Send a Message
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% set grad_colors = {
+  'Quantitative Finance': 'from-blue-900/60 to-bg-800',
+  'Machine Learning': 'from-purple-900/60 to-bg-800',
+  'Trading Systems': 'from-green-900/60 to-bg-800',
+  'Data Science': 'from-cyan-900/60 to-bg-800',
+  'Research': 'from-amber-900/60 to-bg-800',
+  'Visualization': 'from-pink-900/60 to-bg-800',
+} %}
+
+<div class="group flex flex-col rounded-xl bg-bg-800 border border-bg-700 hover:border-gold-700 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30">
+
+  <!-- Cover -->
+  <div class="relative h-44 overflow-hidden">
+    {% if project.cover_image %}
+      <img src="{{ url_for('static', filename='uploads/' + project.cover_image) }}"
+           alt="{{ project.title }}"
+           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    {% else %}
+      <div class="w-full h-full bg-gradient-to-br {{ grad_colors.get(project.category, 'from-bg-700 to-bg-800') }} flex items-center justify-center">
+        <i data-lucide="bar-chart-2" class="w-10 h-10 text-gray-600"></i>
+      </div>
+    {% endif %}
+    <div class="absolute top-3 left-3">
+      <span class="px-2.5 py-1 rounded-full bg-bg-950/80 backdrop-blur-sm text-xs font-mono text-gold-400 border border-gold-800/50">
+        {{ project.category }}
+      </span>
+    </div>
+    {% if project.source %}
+      <div class="absolute top-3 right-3">
+        <span class="px-2 py-1 rounded bg-bg-950/80 backdrop-blur-sm text-xs font-mono text-gray-400">
+          {{ project.source }}
+        </span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Body -->
+  <div class="flex flex-col gap-3 p-5 flex-1">
+    <h3 class="font-heading font-semibold text-gray-100 group-hover:text-gold-300 transition-colors leading-snug text-base">
+      {{ project.title }}
+    </h3>
+    <p class="text-sm font-body text-gray-400 leading-relaxed flex-1 line-clamp-2">
+      {{ project.short_description or project.description | striptags | truncate(120) }}
+    </p>
+
+    {% if project.tools %}
+      <div class="flex flex-wrap gap-1.5">
+        {% for tool in project.tools[:4] %}
+          <span class="px-2 py-0.5 rounded bg-bg-700 text-xs font-mono text-gray-400">{{ tool }}</span>
+        {% endfor %}
+        {% if project.tools|length > 4 %}
+          <span class="px-2 py-0.5 rounded bg-bg-700 text-xs font-mono text-gray-500">+{{ project.tools|length - 4 }}</span>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="flex items-center justify-between pt-2 border-t border-bg-700">
+      {% if project.avg_rating %}
+        <div class="flex items-center gap-1">
+          <i data-lucide="star" class="w-3.5 h-3.5 text-gold-400 fill-gold-400"></i>
+          <span class="text-xs font-mono text-gray-400">{{ "%.1f"|format(project.avg_rating) }}</span>
+        </div>
+      {% else %}
+        <div></div>
+      {% endif %}
+      <a href="{{ url_for('public.project_detail', slug=project.slug) }}"
+         class="inline-flex items-center gap-1.5 text-xs font-mono text-gold-500 hover:text-gold-300 transition-colors">
+        View Project <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+  </div>
+</div>

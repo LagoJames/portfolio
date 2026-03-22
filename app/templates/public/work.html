@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio — Lago Brian{% endblock %}
+{% block meta_description %}Browse Lago Brian's portfolio of quantitative finance, algorithmic trading, machine learning, and data science projects.{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="pt-24 pb-12 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">My Work</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-4">Portfolio</h1>
+    <p class="text-base sm:text-lg font-body text-gray-400 max-w-2xl leading-relaxed">
+      A curated selection of quantitative finance, machine learning, and data science projects
+      built over {{ projects|length if projects else '50' }}+ engagements.
+    </p>
+  </div>
+</div>
+
+<!-- Filter + Grid -->
+<div class="min-h-screen bg-bg-900 py-12"
+     x-data="{ active: 'all', setFilter(cat) { this.active = cat }, matches(c) { return this.active === 'all' || this.active === c } }">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Filter Bar -->
+    <div class="flex flex-wrap items-center gap-2 mb-10 pb-6 border-b border-bg-700">
+      <button @click="setFilter('all')"
+              :class="active === 'all'
+                ? 'bg-gold-500 text-black border-gold-500'
+                : 'bg-bg-800 text-gray-400 border-bg-600 hover:border-gold-700 hover:text-gold-400'"
+              class="px-4 py-2 rounded-lg border text-xs font-mono font-medium transition-all duration-200">
+        All
+        <span class="ml-1.5 opacity-60">({{ projects|length if projects else 0 }})</span>
+      </button>
+
+      {% set category_colors = {
+        'Quantitative Finance': 'blue',
+        'Machine Learning': 'purple',
+        'Trading Systems': 'green',
+        'Data Science': 'cyan',
+        'Research': 'amber',
+        'Visualization': 'pink',
+      } %}
+
+      {% for cat in categories %}
+        {% set count = projects | selectattr('category', 'equalto', cat) | list | length %}
+        <button @click="setFilter('{{ cat }}')"
+                :class="active === '{{ cat }}'
+                  ? 'bg-gold-500 text-black border-gold-500'
+                  : 'bg-bg-800 text-gray-400 border-bg-600 hover:border-gold-700 hover:text-gold-400'"
+                class="px-4 py-2 rounded-lg border text-xs font-mono font-medium transition-all duration-200">
+          {{ cat | replace('_', ' ') | title }}
+          <span class="ml-1.5 opacity-60">({{ count }})</span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <!-- Project Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for project in projects %}
+        {% set tools = project.tools_used.split(',') if project.tools_used else [] %}
+        <div x-bind:style="matches('{{ project.category }}') ? '' : 'display:none'"
+             class="group flex flex-col rounded-xl bg-bg-800 border border-bg-700 hover:border-gold-700 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30">
+
+          <!-- Cover Image or Gradient Fallback -->
+          <div class="relative h-44 overflow-hidden">
+            {% if project.cover_image_url %}
+              <img src="/uploads/projects/{{ project.cover_image_url }}"
+                   alt="{{ project.title }}"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   loading="lazy" />
+            {% else %}
+              {% set grad_colors = {
+                'financial_engineering': 'from-amber-900/60 to-bg-800',
+                'machine_learning': 'from-blue-900/60 to-bg-800',
+                'trading_quant': 'from-emerald-900/60 to-bg-800',
+                'statistical_analysis': 'from-purple-900/60 to-bg-800',
+                'research': 'from-orange-900/60 to-bg-800',
+                'personal': 'from-violet-900/60 to-bg-800',
+                'web_development': 'from-cyan-900/60 to-bg-800',
+                'pinescript': 'from-lime-900/60 to-bg-800',
+              } %}
+              {% set cat_icons = {
+                'financial_engineering': 'trending-up',
+                'machine_learning': 'brain',
+                'trading_quant': 'bar-chart-2',
+                'statistical_analysis': 'scatter-chart',
+                'research': 'book-open',
+                'personal': 'code',
+                'web_development': 'globe',
+                'pinescript': 'candlestick-chart',
+              } %}
+              <div class="w-full h-full bg-gradient-to-br {{ grad_colors.get(project.category, 'from-bg-700 to-bg-800') }} flex items-center justify-center">
+                <i data-lucide="{{ cat_icons.get(project.category, 'bar-chart-2') }}" class="w-10 h-10 text-gray-600"></i>
+              </div>
+            {% endif %}
+            <!-- Category badge overlay -->
+            <div class="absolute top-3 left-3 flex items-center gap-2">
+              {% set cat_colors = {
+                'financial_engineering': 'text-amber-400 border-amber-800/50',
+                'machine_learning': 'text-blue-400 border-blue-800/50',
+                'trading_quant': 'text-emerald-400 border-emerald-800/50',
+                'statistical_analysis': 'text-purple-400 border-purple-800/50',
+                'research': 'text-orange-400 border-orange-800/50',
+                'personal': 'text-violet-400 border-violet-800/50',
+                'web_development': 'text-cyan-400 border-cyan-800/50',
+                'pinescript': 'text-lime-400 border-lime-800/50',
+              } %}
+              <span class="px-2.5 py-1 rounded-full bg-bg-950/80 backdrop-blur-sm text-xs font-mono {{ cat_colors.get(project.category, 'text-gold-400 border-gold-800/50') }} border">
+                {{ project.category | replace('_', ' ') | title }}
+              </span>
+            </div>
+            <!-- Source badge -->
+            {% if project.source %}
+              <div class="absolute top-3 right-3">
+                <span class="px-2 py-1 rounded bg-bg-950/80 backdrop-blur-sm text-xs font-mono
+                  {% if project.source == 'upwork' %}text-green-400{% elif project.source == 'quant_hedge' %}text-gold-400{% else %}text-gray-400{% endif %}">
+                  {% if project.source == 'upwork' %}Upwork ✓{% elif project.source == 'quant_hedge' %}Quant (h)Edge{% else %}{{ project.source | title }}{% endif %}
+                </span>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Card Body -->
+          <div class="flex flex-col gap-3 p-5 flex-1">
+            <h3 class="font-heading font-semibold text-gray-100 group-hover:text-gold-300 transition-colors leading-snug text-base">
+              {{ project.title }}
+            </h3>
+            <p class="text-sm font-body text-gray-400 leading-relaxed flex-1 line-clamp-2">
+              {{ project.short_description or (project.full_description | striptags | truncate(120)) if project.full_description else '' }}
+            </p>
+
+            <!-- Tools -->
+            {% if tools %}
+              <div class="flex flex-wrap gap-1.5">
+                {% for tool in tools[:4] %}
+                  <span class="px-2 py-0.5 rounded bg-bg-700 text-xs font-mono text-gray-400">{{ tool | trim }}</span>
+                {% endfor %}
+                {% if tools | length > 4 %}
+                  <span class="px-2 py-0.5 rounded bg-bg-700 text-xs font-mono text-gray-500">+{{ tools | length - 4 }}</span>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            <!-- Rating + Link -->
+            <div class="flex items-center justify-between pt-2 border-t border-bg-700">
+              {% if project.upwork_rating %}
+                <div class="flex items-center gap-1">
+                  <i data-lucide="star" class="w-3.5 h-3.5 text-gold-400 fill-gold-400"></i>
+                  <span class="text-xs font-mono text-gray-400">{{ "%.1f"|format(project.upwork_rating) }}</span>
+                </div>
+              {% else %}
+                <div></div>
+              {% endif %}
+              <a href="{{ url_for('public.project_detail', slug=project.slug) }}"
+                 class="inline-flex items-center gap-1.5 text-xs font-mono text-gold-500 hover:text-gold-300 transition-colors">
+                View Project <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <!-- Empty state -->
+        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+          <i data-lucide="folder-open" class="w-12 h-12 text-gray-600 mb-4"></i>
+          <h3 class="font-heading font-semibold text-gray-400 text-lg mb-2">No projects yet</h3>
+          <p class="text-sm font-body text-gray-600">Check back soon — projects are being added.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

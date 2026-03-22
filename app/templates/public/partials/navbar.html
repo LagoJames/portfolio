@@ -1,0 +1,118 @@
+<nav
+  x-data="{
+    scrolled: false,
+    mobileOpen: false,
+    init() {
+      window.addEventListener('scroll', () => {
+        this.scrolled = window.scrollY > 20;
+      });
+    }
+  }"
+  :class="scrolled ? 'bg-bg-900/95 backdrop-blur-md border-b border-bg-700 shadow-xl' : 'bg-transparent'"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Left: Monogram + Name -->
+      <a href="{{ url_for('public.home') }}" class="flex items-center gap-3 group">
+        <span class="inline-flex items-center justify-center w-9 h-9 bg-gold-500 text-black font-mono font-bold text-sm rounded select-none group-hover:bg-gold-400 transition-colors">
+          LB
+        </span>
+        <span class="font-heading font-semibold text-gray-100 text-base tracking-tight hidden sm:block">
+          Lago Brian
+        </span>
+      </a>
+
+      <!-- Center: Desktop Nav Links -->
+      <div class="hidden md:flex items-center gap-1">
+        {% set nav_items = [
+          ('Work',    url_for('public.work')),
+          ('Writing', url_for('public.writing')),
+          ('Samples', url_for('public.samples')),
+          ('Blog',    url_for('blog.blog_list')),
+          ('About',   url_for('public.about')),
+          ('Contact', url_for('public.contact')),
+        ] %}
+        {% for label, href in nav_items %}
+          <a href="{{ href }}"
+             class="relative px-4 py-2 text-sm font-body font-medium transition-colors duration-200
+                    {% if request.path == href %}text-gold-400{% else %}text-gray-400 hover:text-gray-100{% endif %}
+                    group">
+            {{ label }}
+            <span class="absolute bottom-1 left-4 right-4 h-px bg-gold-400 transition-transform duration-200 origin-left
+                         {% if request.path == href %}scale-x-100{% else %}scale-x-0 group-hover:scale-x-100{% endif %}">
+            </span>
+          </a>
+        {% endfor %}
+      </div>
+
+      <!-- Right: Hire Me + Active Project Badge -->
+      <div class="flex items-center gap-3">
+        <!-- Active project badge -->
+        {% if current_active_project %}
+          <a href="{{ url_for('public.project_detail', slug=current_active_project.slug) }}"
+             class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-bg-700 border border-bg-600 text-xs font-mono text-gray-400 hover:border-gold-600 hover:text-gold-300 transition-all duration-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+            Working on: <span class="text-gray-200 ml-1 truncate max-w-[120px]">{{ current_active_project.title }}</span>
+          </a>
+        {% endif %}
+
+        <a href="{{ url_for('public.hire') }}"
+           class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-black font-heading font-semibold text-sm transition-all duration-200 shadow-lg shadow-gold-900/30 hover:shadow-gold-700/30">
+          Hire Me
+        </a>
+
+        <!-- Mobile Hamburger -->
+        <button
+          @click="mobileOpen = !mobileOpen"
+          class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-gray-400 hover:text-gray-100 hover:bg-bg-700 transition-colors"
+          :aria-expanded="mobileOpen"
+          aria-label="Toggle navigation">
+          <i x-show="!mobileOpen" data-lucide="menu" class="w-5 h-5"></i>
+          <i x-show="mobileOpen" data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Overlay -->
+  <div
+    x-show="mobileOpen"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 -translate-y-2"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 translate-y-0"
+    x-transition:leave-end="opacity-0 -translate-y-2"
+    class="md:hidden bg-bg-900/98 backdrop-blur-md border-b border-bg-700">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
+      {% for label, href in nav_items %}
+        <a href="{{ href }}"
+           @click="mobileOpen = false"
+           class="flex items-center px-4 py-3 rounded-lg text-sm font-body font-medium transition-colors
+                  {% if request.path == href %}bg-bg-700 text-gold-400{% else %}text-gray-300 hover:bg-bg-800 hover:text-gray-100{% endif %}">
+          {{ label }}
+          {% if request.path == href %}
+            <span class="ml-auto w-1.5 h-1.5 rounded-full bg-gold-400"></span>
+          {% endif %}
+        </a>
+      {% endfor %}
+
+      <div class="pt-3 mt-2 border-t border-bg-700">
+        <a href="{{ url_for('public.hire') }}"
+           @click="mobileOpen = false"
+           class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg bg-gold-500 hover:bg-gold-400 text-black font-heading font-semibold text-sm transition-colors">
+          Hire Me
+        </a>
+      </div>
+
+      {% if current_active_project %}
+        <div class="flex items-center gap-2 px-4 py-2 mt-1 rounded-lg bg-bg-800 border border-bg-600 text-xs font-mono text-gray-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+          Working on: <span class="text-gray-200 ml-1">{{ current_active_project.title }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</nav>

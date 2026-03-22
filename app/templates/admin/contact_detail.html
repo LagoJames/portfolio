@@ -1,0 +1,128 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Contact: {{ contact.name }}{% endblock %}
+{% block topbar_title %}Contact Detail{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <a href="/admin/contacts/" class="text-gray-500 hover:text-white transition-colors">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div>
+        <h2 class="font-heading font-semibold text-2xl text-white">{{ contact.name }}</h2>
+        <p class="text-gray-500 text-xs font-mono mt-0.5">
+          Received {{ contact.created_at.strftime('%B %d, %Y at %H:%M') if contact.created_at else '—' }}
+        </p>
+      </div>
+    </div>
+    <div>
+      {% if not contact.is_read %}
+        <span class="inline-flex items-center gap-1.5 bg-red-600/20 text-red-400 border border-red-600/30 text-xs font-mono px-3 py-1 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Unread
+        </span>
+      {% else %}
+        <span class="inline-flex items-center gap-1 bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-3 py-1 rounded-full">
+          Read
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Detail Card -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+
+    <!-- Contact Info -->
+    <div class="p-6 border-b border-bg-700">
+      <h3 class="font-heading font-semibold text-white text-sm mb-4">Contact Information</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-gray-500 font-mono text-xs mb-0.5">Name</dt>
+          <dd class="text-white">{{ contact.name }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 font-mono text-xs mb-0.5">Email</dt>
+          <dd>
+            <a href="mailto:{{ contact.email }}" class="text-gold-400 hover:text-gold-300 font-mono transition-colors">
+              {{ contact.email }}
+            </a>
+          </dd>
+        </div>
+        {% if contact.phone %}
+          <div>
+            <dt class="text-gray-500 font-mono text-xs mb-0.5">Phone</dt>
+            <dd class="text-white font-mono">{{ contact.phone }}</dd>
+          </div>
+        {% endif %}
+        {% if contact.company %}
+          <div>
+            <dt class="text-gray-500 font-mono text-xs mb-0.5">Company</dt>
+            <dd class="text-white">{{ contact.company }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    </div>
+
+    <!-- Project Details -->
+    <div class="p-6 border-b border-bg-700">
+      <h3 class="font-heading font-semibold text-white text-sm mb-4">Project Details</h3>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-gray-500 font-mono text-xs mb-0.5">Project Type</dt>
+          <dd class="text-white">{{ contact.project_type | default('Not specified') }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500 font-mono text-xs mb-0.5">Budget</dt>
+          <dd class="text-white font-mono">{{ contact.budget | default('Not specified') }}</dd>
+        </div>
+        {% if contact.timeline %}
+          <div>
+            <dt class="text-gray-500 font-mono text-xs mb-0.5">Timeline</dt>
+            <dd class="text-white">{{ contact.timeline }}</dd>
+          </div>
+        {% endif %}
+        {% if contact.source %}
+          <div>
+            <dt class="text-gray-500 font-mono text-xs mb-0.5">How They Found Me</dt>
+            <dd class="text-white">{{ contact.source }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    </div>
+
+    <!-- Message -->
+    <div class="p-6">
+      <h3 class="font-heading font-semibold text-white text-sm mb-3">Message</h3>
+      <div class="bg-bg-700 rounded-lg p-4 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{{ contact.message | default('No message provided.') }}</div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap gap-3">
+    {% if not contact.is_read %}
+      <form method="POST" action="/admin/contacts/{{ contact.id }}/mark-read/">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="check" class="w-4 h-4"></i> Mark as Read
+        </button>
+      </form>
+    {% endif %}
+
+    <a href="mailto:{{ contact.email }}?subject=Re: Your message to Lago Brian"
+       class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+      <i data-lucide="mail" class="w-4 h-4"></i> Reply via Email
+    </a>
+
+    <form method="POST" action="/admin/contacts/{{ contact.id }}/delete/"
+          onsubmit="return confirm('Permanently delete this contact submission?')">
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+        <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

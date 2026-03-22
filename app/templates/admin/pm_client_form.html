@@ -1,0 +1,88 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if client else 'New' }} Client{% endblock %}
+{% block topbar_title %}{{ 'Edit' if client else 'New' }} Client{% endblock %}
+
+{% block content %}
+<div class="max-w-xl space-y-6">
+
+  <div class="flex items-center gap-4">
+    <a href="/admin/pm/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if client else 'New' }} Client</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_pm.edit_client', client_id=client.id) if client else url_for('crm_pm.new_client') }}"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="name">Full Name <span class="text-red-400">*</span></label>
+        <input type="text" id="name" name="name" required
+               value="{{ client.name if client else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Client full name" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="email">Email</label>
+        <input type="email" id="email" name="email"
+               value="{{ client.email if client else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="client@example.com" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone"
+               value="{{ client.phone if client else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="+1 555 000 0000" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="company">Company</label>
+        <input type="text" id="company" name="company"
+               value="{{ client.company if client else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Company name (optional)" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="4"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="Client notes, preferences, etc.">{{ client.notes if client else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if client else 'Create Client' }}
+        </button>
+        <a href="/admin/pm/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if client %}
+        <form method="POST" action="/admin/pm/clients/{{ client.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this client?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

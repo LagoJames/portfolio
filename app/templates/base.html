@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Lago Brian — Financial Engineer & Data Scientist{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Lago Brian — Financial Engineer & Data Scientist based in Nairobi, Kenya. Quantitative research, algorithmic trading, and machine learning.{% endblock %}" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{% block og_title %}Lago Brian — Financial Engineer & Data Scientist{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}Quantitative research, algorithmic trading, and machine learning from Nairobi, Kenya.{% endblock %}" />
+  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='img/og-default.jpg', _external=True) }}{% endblock %}" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN with custom config -->
+  <script>
+    window.tailwindConfig = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: {
+              950: '#05050a',
+              900: '#0a0a0f',
+              800: '#111118',
+              700: '#18181f',
+              600: '#21212b',
+            },
+            gold: {
+              200: '#fef3c7',
+              300: '#fde68a',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            },
+          },
+          fontFamily: {
+            heading: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace'],
+            body: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.6s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <script>tailwind.config = window.tailwindConfig;</script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Alpine cloak: hide elements until Alpine initializes -->
+  <style>[x-cloak] { display: none !important; }</style>
+
+  <!-- Portfolio CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portfolio.css') }}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-bg-900 text-gray-100 font-body antialiased" x-data="{ mobileOpen: false }">
+
+  <!-- Navbar -->
+  {% include 'public/partials/navbar.html' %}
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm w-full" x-data="{ show: true }" x-show="show">
+        {% for category, message in messages %}
+          <div class="flex items-start gap-3 px-4 py-3 rounded-lg border text-sm font-body shadow-lg
+            {% if category == 'error' %}bg-red-950 border-red-700 text-red-200
+            {% elif category == 'success' %}bg-green-950 border-green-700 text-green-200
+            {% elif category == 'warning' %}bg-yellow-950 border-yellow-700 text-yellow-200
+            {% else %}bg-bg-700 border-bg-600 text-gray-200{% endif %}"
+            x-data="{ visible: true }" x-show="visible" x-transition>
+            <span class="flex-1">{{ message }}</span>
+            <button @click="visible = false" class="text-current opacity-60 hover:opacity-100 transition-opacity ml-2 shrink-0">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Content -->
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  {% include 'public/partials/footer.html' %}
+
+  <!-- Lucide Icons init -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

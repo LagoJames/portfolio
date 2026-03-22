@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Application Received — Lago Brian{% endblock %}
+{% block meta_description %}Your project brief has been received. Lago Brian will get back to you within 24 hours.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-bg-950 flex items-center justify-center px-4 py-24">
+  <div class="max-w-lg w-full text-center">
+
+    <!-- Success icon -->
+    <div class="relative mx-auto mb-8 w-20 h-20">
+      <div class="absolute inset-0 rounded-full bg-green-500/10 animate-ping"></div>
+      <div class="relative w-20 h-20 rounded-full bg-green-900/40 border border-green-700/50 flex items-center justify-center">
+        <i data-lucide="check" class="w-9 h-9 text-green-400"></i>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Received</p>
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-4">
+      Application Received!
+    </h1>
+    <p class="text-base font-body text-gray-400 leading-relaxed mb-3">
+      Thank you for submitting your project brief. I've received your application and will
+      review the details carefully.
+    </p>
+    <p class="text-sm font-body text-gray-500 mb-8">
+      Expect a response within <span class="text-gold-400 font-medium">24 hours</span> — usually sooner.
+      Check your email for a confirmation.
+    </p>
+
+    <!-- What's next -->
+    <div class="text-left mb-8 p-5 rounded-xl bg-bg-800 border border-bg-700">
+      <h2 class="font-heading font-semibold text-sm text-gray-300 mb-4">What happens next</h2>
+      <div class="flex flex-col gap-3">
+        {% for num, step in [
+          ('01', 'I review your brief and assess feasibility & timeline'),
+          ('02', 'I send a detailed proposal with timeline and pricing breakdown'),
+          ('03', 'We align on scope, deliverables, and payment terms'),
+          ('04', 'Work begins after deposit / initial payment is confirmed'),
+        ] %}
+          <div class="flex items-start gap-3">
+            <span class="font-mono text-xs text-gold-600 shrink-0 mt-0.5">{{ num }}</span>
+            <span class="text-sm font-body text-gray-400">{{ step }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="{{ url_for('public.home') }}"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all shadow-lg shadow-gold-900/30">
+        Back to Home <i data-lucide="home" class="w-4 h-4"></i>
+      </a>
+      <a href="{{ url_for('public.work') }}"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+        Browse Portfolio
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

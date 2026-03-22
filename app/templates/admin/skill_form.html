@@ -1,0 +1,105 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if skill else 'New' }} Skill{% endblock %}
+{% block topbar_title %}{{ 'Edit' if skill else 'New' }} Skill{% endblock %}
+
+{% block content %}
+<div class="max-w-xl space-y-6">
+
+  <div class="flex items-center gap-4">
+    <a href="/admin/skills/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if skill else 'New' }} Skill</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_skills.edit_skill', skill_id=skill.id) if skill else url_for('crm_skills.new_skill') }}"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="name">Skill Name <span class="text-red-400">*</span></label>
+          <input type="text" id="name" name="name" required
+                 value="{{ skill.name if skill else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Python" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="icon">Icon <span class="text-gray-500 font-mono text-xs">(emoji or icon name)</span></label>
+          <input type="text" id="icon" name="icon"
+                 value="{{ skill.icon if skill else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="🐍 or python" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="category">Category</label>
+          <input type="text" id="category" name="category"
+                 value="{{ skill.category if skill else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Languages, Frameworks, Tools..." />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="level">Proficiency Level <span class="text-gray-500 font-mono text-xs">(1–5)</span></label>
+          <input type="number" id="level" name="level" min="1" max="5"
+                 value="{{ skill.level if skill else 3 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="years_experience">Years of Experience</label>
+        <input type="number" id="years_experience" name="years_experience" min="0" step="0.5"
+               value="{{ skill.years_experience if skill else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="3" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="sort_order">Sort Order</label>
+          <input type="number" id="sort_order" name="sort_order" min="0"
+                 value="{{ skill.sort_order if skill else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 font-mono" />
+        </div>
+        <div class="flex items-center gap-3 pt-7">
+          <input type="checkbox" id="is_visible" name="is_visible" value="1"
+                 {{ 'checked' if not skill or skill.is_visible }}
+                 class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+          <label for="is_visible" class="text-sm text-gray-300">Visible on site</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if skill else 'Create Skill' }}
+        </button>
+        <a href="/admin/skills/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if skill %}
+        <form method="POST" action="/admin/skills/{{ skill.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this skill?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

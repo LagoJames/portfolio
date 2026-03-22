@@ -1,0 +1,121 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if ap else 'New' }} Active Project{% endblock %}
+{% block topbar_title %}{{ 'Edit' if ap else 'New' }} Active Project{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+
+  <div class="flex items-center gap-4">
+    <a href="/admin/active-projects/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if ap else 'New' }} Active Project</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_active_projects.edit_active_project', ap_id=ap.id) if ap else url_for('crm_active_projects.new_active_project') }}"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="project_name">Project Name <span class="text-red-400">*</span></label>
+        <input type="text" id="project_name" name="project_name" required
+               value="{{ ap.project_name if ap else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Project name" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="client_name">Client Name</label>
+        <input type="text" id="client_name" name="client_name"
+               value="{{ ap.client_name if ap else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="Client full name" />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="status">Status</label>
+          <select id="status" name="status"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            {% for val, label in [('in_progress','In Progress'),('on_hold','On Hold'),('completed','Completed'),('cancelled','Cancelled')] %}
+              <option value="{{ val }}" {{ 'selected' if ap and ap.status == val }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="source">Source</label>
+          <select id="source" name="source"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            <option value="website"  {{ 'selected' if ap and ap.source == 'website' }}>Website</option>
+            <option value="upwork"   {{ 'selected' if ap and ap.source == 'upwork' }}>Upwork</option>
+            <option value="referral" {{ 'selected' if ap and ap.source == 'referral' }}>Referral</option>
+            <option value="external" {{ 'selected' if ap and ap.source == 'external' }}>External</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="expected_finish">Expected Finish Date</label>
+        <input type="date" id="expected_finish" name="expected_finish"
+               value="{{ ap.expected_finish.strftime('%Y-%m-%d') if ap and ap.expected_finish else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="4"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="Internal notes about this project...">{{ ap.notes if ap else '' }}</textarea>
+      </div>
+
+      <!-- Privacy Toggles -->
+      <div class="flex flex-wrap gap-6 pt-2">
+        <div class="flex items-center gap-3">
+          <input type="checkbox" id="is_private" name="is_private" value="1"
+                 {{ 'checked' if ap and ap.is_private }}
+                 class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+          <label for="is_private" class="text-sm text-gray-300">
+            Private <span class="text-gray-500 font-mono text-xs">(hidden from public portfolio)</span>
+          </label>
+        </div>
+        <div class="flex items-center gap-3">
+          <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1"
+                 {{ 'checked' if ap and ap.is_anonymous }}
+                 class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+          <label for="is_anonymous" class="text-sm text-gray-300">
+            Anonymous client <span class="text-gray-500 font-mono text-xs">(hide client name)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if ap else 'Create Project' }}
+        </button>
+        <a href="/admin/active-projects/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if ap %}
+        <form method="POST" action="/admin/active-projects/{{ ap.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this active project?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

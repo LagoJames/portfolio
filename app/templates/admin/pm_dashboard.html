@@ -1,0 +1,158 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}PM Dashboard{% endblock %}
+{% block topbar_title %}Project Management{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">PM Dashboard</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">Clients, projects, and financials</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="/admin/pm/clients/new/"
+         class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="user-plus" class="w-4 h-4"></i> New Client
+      </a>
+      <a href="/admin/pm/projects/new/"
+         class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Project
+      </a>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="p-2 bg-purple-500/10 rounded-lg w-fit mb-3"><i data-lucide="users" class="w-5 h-5 text-purple-400"></i></div>
+      <p class="text-3xl font-heading font-bold text-white">{{ clients | length if clients else 0 }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Clients</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="p-2 bg-blue-500/10 rounded-lg w-fit mb-3"><i data-lucide="kanban" class="w-5 h-5 text-blue-400"></i></div>
+      <p class="text-3xl font-heading font-bold text-white">{{ pm_projects | length if pm_projects else 0 }}</p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Projects</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="p-2 bg-green-500/10 rounded-lg w-fit mb-3"><i data-lucide="dollar-sign" class="w-5 h-5 text-green-400"></i></div>
+      <p class="text-3xl font-heading font-bold text-white">
+        ${{ '{:,.0f}'.format(total_revenue) if total_revenue else '0' }}
+      </p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Total Revenue</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <div class="p-2 bg-yellow-500/10 rounded-lg w-fit mb-3"><i data-lucide="clock" class="w-5 h-5 text-yellow-400"></i></div>
+      <p class="text-3xl font-heading font-bold text-white">
+        ${{ '{:,.0f}'.format(outstanding_balance) if outstanding_balance else '0' }}
+      </p>
+      <p class="text-gray-500 text-xs font-mono mt-1">Outstanding</p>
+    </div>
+  </div>
+
+  <!-- Clients List -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <h3 class="font-heading font-semibold text-white text-sm">Clients</h3>
+      <a href="/admin/pm/clients/new/" class="text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">+ New Client</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Name</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Email</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Projects</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if clients %}
+            {% for client in clients %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3 text-white font-medium">{{ client.name }}</td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden md:table-cell">{{ client.email | default('—') }}</td>
+                <td class="px-5 py-3">
+                  <span class="bg-bg-700 text-gray-300 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">
+                    {{ client.project_count | default(0) }}
+                  </span>
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <a href="/admin/pm/clients/{{ client.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="4" class="px-5 py-8 text-center text-gray-500 font-mono text-sm">No clients yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Projects Table -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <h3 class="font-heading font-semibold text-white text-sm">Projects</h3>
+      <a href="/admin/pm/projects/new/" class="text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">+ New Project</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Project</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Client</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Budget</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Paid</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Balance</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">View</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if pm_projects %}
+            {% for p in pm_projects %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3 text-white font-medium">{{ p.name }}</td>
+                <td class="px-5 py-3 text-gray-400 hidden md:table-cell">{{ p.client_name | default('—') }}</td>
+                <td class="px-5 py-3">
+                  {% set s = p.status | default('active') %}
+                  {% if s == 'active' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Active</span>
+                  {% elif s == 'completed' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+                  {% elif s == 'on_hold' %}<span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">On Hold</span>
+                  {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">{{ s | title }}</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-right text-gray-300 font-mono text-xs hidden lg:table-cell">${{ '{:,.2f}'.format(p.budget) if p.budget else '—' }}</td>
+                <td class="px-5 py-3 text-right text-green-400 font-mono text-xs hidden lg:table-cell">${{ '{:,.2f}'.format(p.paid) if p.paid else '—' }}</td>
+                <td class="px-5 py-3 text-right font-mono text-xs hidden lg:table-cell {{ 'text-red-400' if p.balance and p.balance > 0 else 'text-gray-500' }}">
+                  ${{ '{:,.2f}'.format(p.balance) if p.balance else '—' }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <a href="/admin/pm/projects/{{ p.id }}/"
+                     class="inline-flex items-center gap-1 text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">
+                    View <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="7" class="px-5 py-8 text-center text-gray-500 font-mono text-sm">No PM projects.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="flex flex-wrap gap-3">
+    <a href="/admin/pm/expenses/"
+       class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+      <i data-lucide="receipt" class="w-4 h-4 text-orange-400"></i> View Expenses
+    </a>
+  </div>
+
+</div>
+{% endblock %}
