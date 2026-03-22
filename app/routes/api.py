@@ -31,7 +31,12 @@ def contact_submit():
     db.session.add(submission)
     db.session.commit()
 
-    send_contact_email(name, email, subject, message, project_type, budget_range)
+    # Send notifications
+    try:
+        from app.utils.notify import notify_contact
+        notify_contact(name, email, subject, message, project_type, budget_range)
+    except Exception:
+        pass
 
     return jsonify({'success': True, 'message': "Sent! I'll get back to you within 4 hours."})
 

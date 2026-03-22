@@ -190,6 +190,14 @@ def hire():
                 db.session.add(hrf)
 
         db.session.commit()
+
+        # Send notification
+        try:
+            from app.utils.notify import notify_hire_request
+            notify_hire_request(hr)
+        except Exception:
+            pass  # Don't fail the request if notification fails
+
         return render_template('public/hire_success.html')
 
     return render_template('public/hire.html')
