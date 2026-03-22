@@ -34,7 +34,7 @@ def seed_settings():
         'github_username': 'LagoJames',
         'substack_quant_url': 'https://quanthedge.substack.com',
         'substack_jarida_url': 'https://jaridalahisa.substack.com',
-        'upwork_url': 'https://www.upwork.com/freelancers/lagobrian',
+        'upwork_url': 'https://www.upwork.com/freelancers/jamesl34',
         'linkedin_url': '',
         'meta_description': 'Lago Brian — Financial Engineer & Data Scientist. Quantitative finance models, ML systems, and data science. Founder of Quant (h)Edge. Featured in Spectra Markets. Cited by MarketWatch.',
     }
