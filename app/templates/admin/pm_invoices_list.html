@@ -1,0 +1,128 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Invoices{% endblock %}
+{% block topbar_title %}Invoices{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{ search: '', statusFilter: '' }">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Invoices</h2>
+      <p class="text-gray-500 text-sm mt-1">Track invoices issued, their payment status, linked tasks, and what remains outstanding.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{{ url_for('crm_pm.export_section', section='invoices', fmt='csv') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="download" class="w-4 h-4"></i> CSV
+      </a>
+      <a href="{{ url_for('crm_pm.export_section', section='invoices', fmt='xlsx') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="sheet" class="w-4 h-4"></i> XLSX
+      </a>
+      <a href="/admin/pm/invoices/new"
+         class="inline-flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> Create Invoice
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Total Invoiced</p>
+      <p class="text-3xl font-heading font-bold text-white">${{ '{:,.0f}'.format(total_invoiced) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Total Paid</p>
+      <p class="text-3xl font-heading font-bold text-emerald-400">${{ '{:,.0f}'.format(total_paid) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Outstanding</p>
+      <p class="text-3xl font-heading font-bold {{ 'text-red-400' if total_outstanding > 0 else 'text-gray-500' }}">${{ '{:,.0f}'.format(total_outstanding) }}</p>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-4 flex flex-wrap items-center gap-3">
+    <div class="relative flex-1 min-w-[220px]">
+      <i data-lucide="search" class="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      <input type="text" x-model="search" placeholder="Search invoice number, client, or project..."
+             class="w-full bg-bg-700 border border-bg-600 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+    </div>
+    <select x-model="statusFilter"
+            class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-orange-500">
+      <option value="">All Statuses</option>
+      <option value="paid">Paid</option>
+      <option value="partial">Partially Paid</option>
+      <option value="unpaid">Unpaid</option>
+    </select>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700 bg-bg-900/40">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Invoice #</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Client / Project</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Task</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Amount</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if invoices %}
+            {% for invoice in invoices %}
+              <tr
+                class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors"
+                x-show="
+                  (!search || '{{ ((invoice.invoice_number or '') ~ ' ' ~ (invoice.project.client.name if invoice.project and invoice.project.client else '') ~ ' ' ~ (invoice.project.name if invoice.project else '')) | lower }}'.includes(search.toLowerCase())) &&
+                  (!statusFilter || '{{ invoice.payment_status or '' }}' === statusFilter)
+                "
+              >
+                <td class="px-5 py-3 text-white font-mono text-xs">{{ invoice.invoice_number or '—' }}</td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden md:table-cell">{{ invoice.date.strftime('%b %d, %Y') if invoice.date else '—' }}</td>
+                <td class="px-5 py-3">
+                  <div class="text-white">{{ invoice.project.client.name if invoice.project and invoice.project.client else '—' }}</div>
+                  <div class="text-gray-500 text-xs mt-1">{{ invoice.project.name if invoice.project else 'No project' }}</div>
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">{{ invoice.task_id or '—' }}</td>
+                <td class="px-5 py-3 text-right text-white font-mono">${{ '{:,.0f}'.format(invoice.amount or 0) }}</td>
+                <td class="px-5 py-3">
+                  {% if invoice.payment_status == 'paid' %}
+                    <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Paid</span>
+                  {% elif invoice.payment_status == 'partial' %}
+                    <span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Partially Paid</span>
+                  {% else %}
+                    <span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Unpaid</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/pm/invoices/{{ invoice.id }}/edit" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/pm/invoices/{{ invoice.id }}/delete" class="inline"
+                          onsubmit="return confirm('Delete this invoice?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-5 py-12 text-center">
+                <i data-lucide="file-text" class="w-10 h-10 text-gray-600 mx-auto mb-2"></i>
+                <p class="text-gray-500 font-mono text-sm">No invoices created yet.</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

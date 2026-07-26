@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: lagobrian-portfolio
+    runtime: python
+    buildCommand: pip install -r requirements.txt && flask db upgrade && python seed.py
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: portfolio-db
+          property: connectionURI
+      - key: CONTACT_TO_EMAIL
+        value: lagobrian@outlook.com
+      - key: GITHUB_USERNAME
+        value: LagoJames
+      - key: SUBSTACK_QUANT_URL
+        value: https://quanthedge.substack.com
+      - key: SUBSTACK_JARIDA_URL
+        value: https://jaridalahisa.substack.com
+      - key: UPLOAD_FOLDER
+        value: uploads
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+
+databases:
+  - name: portfolio-db
+    plan: free
+    databaseName: portfolio_db

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Lago Brian  -  Financial Engineer & Data Scientist{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Lago Brian  -  Financial Engineer & Data Scientist based in Nairobi, Kenya. Quantitative research, algorithmic trading, and machine learning.{% endblock %}" />
+  <meta name="theme-color" content="#011627" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{% block og_title %}Lago Brian  -  Financial Engineer & Data Scientist{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}Quantitative research, algorithmic trading, and machine learning from Nairobi, Kenya.{% endblock %}" />
+  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='img/og-default.jpg', _external=True) }}{% endblock %}" />
+
+  <!-- Theme: apply before render to prevent flash.
+       Default is dark. Only switch to light if user explicitly chose it. -->
+  <script>
+    (function () {
+      if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
+
+  <!-- CaskaydiaCove Nerd Font (self-hosted) -->
+  <style>
+    @font-face {
+      font-family: 'CaskaydiaCove NF';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFont-Regular.woff2') }}") format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CaskaydiaCove NF';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFont-Italic.woff2') }}") format('woff2');
+      font-weight: 400;
+      font-style: italic;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CaskaydiaCove NF';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFont-SemiBold.woff2') }}") format('woff2');
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CaskaydiaCove NF';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFont-Bold.woff2') }}") format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CaskaydiaCove NF Mono';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFontMono-Regular.woff2') }}") format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CaskaydiaCove NF Mono';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFontMono-Italic.woff2') }}") format('woff2');
+      font-weight: 400;
+      font-style: italic;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CaskaydiaCove NF Mono';
+      src: url("{{ url_for('static', filename='fonts/CaskaydiaCoveNerdFontMono-Bold.woff2') }}") format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+
+  <!-- Tailwind CSS CDN — Night Owl palette -->
+  <script>
+    window.tailwindConfig = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: {
+              950: '#010e1a',
+              900: '#011627',
+              800: '#0b2942',
+              700: '#1d3b53',
+              600: '#2a5173',
+            },
+            gold: {
+              200: '#fef3c7',
+              300: '#fde68a',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            },
+          },
+          fontFamily: {
+            heading: ['"CaskaydiaCove NF"', 'monospace'],
+            mono: ['"CaskaydiaCove NF Mono"', 'monospace'],
+            body: ['"CaskaydiaCove NF"', 'monospace'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.6s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <script>tailwind.config = window.tailwindConfig;</script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Alpine cloak: hide elements until Alpine initializes -->
+  <style>[x-cloak] { display: none !important; }</style>
+
+  <!-- Portfolio CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portfolio.css') }}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-bg-900 text-gray-100 font-body antialiased"
+      x-data="{
+        mobileOpen: false,
+        cookieConsent: localStorage.getItem('cookie_consent') || '',
+        acceptCookies() { this.cookieConsent = 'accepted'; localStorage.setItem('cookie_consent', 'accepted'); },
+        rejectCookies() { this.cookieConsent = 'essential'; localStorage.setItem('cookie_consent', 'essential'); }
+      }">
+
+  <!-- Navbar -->
+  {% include 'public/partials/navbar.html' %}
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm w-full" x-data="{ show: true }" x-show="show">
+        {% for category, message in messages %}
+          <div class="flex items-start gap-3 px-4 py-3 rounded-lg border text-sm font-body shadow-lg
+            {% if category == 'error' %}bg-red-950 border-red-700 text-red-200
+            {% elif category == 'success' %}bg-green-950 border-green-700 text-green-200
+            {% elif category == 'warning' %}bg-yellow-950 border-yellow-700 text-yellow-200
+            {% else %}bg-bg-700 border-bg-600 text-gray-200{% endif %}"
+            x-data="{ visible: true }" x-show="visible" x-transition>
+            <span class="flex-1">{{ message }}</span>
+            <button @click="visible = false" class="text-current opacity-60 hover:opacity-100 transition-opacity ml-2 shrink-0" aria-label="Dismiss">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Content -->
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include 'public/partials/footer.html' %}
+
+  <!-- Cookie Notice -->
+  <div x-cloak x-show="!cookieConsent" x-transition
+       class="fixed bottom-4 inset-x-4 z-50">
+    <div class="max-w-4xl mx-auto rounded-2xl border border-bg-600 bg-bg-950/95 backdrop-blur p-5 shadow-2xl shadow-black/40">
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p class="text-sm font-heading font-semibold text-white">Cookie Notice</p>
+          <p class="text-sm text-gray-400 mt-1">We use cookies to enhance your experience. By continuing to use this site, you consent to our use of cookies. <a href="{{ url_for('public.cookies') }}" class="text-gold-400 hover:text-gold-300">Learn more</a></p>
+        </div>
+        <div class="flex gap-2">
+          <button @click="acceptCookies()" class="px-4 py-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-black font-semibold text-sm transition-all">Accept</button>
+          <button @click="rejectCookies()" class="px-4 py-2 rounded-lg border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-semibold text-sm transition-all">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+    <a href="https://wa.me/254114209088" target="_blank" rel="noopener noreferrer"
+       aria-label="Chat on WhatsApp"
+       class="w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20bd5a] flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 active:scale-95">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+        <path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.52 0 .18 5.33.18 11.88c0 2.09.55 4.13 1.58 5.92L0 24l6.39-1.67a11.82 11.82 0 0 0 5.67 1.45h.01c6.54 0 11.87-5.33 11.87-11.88 0-3.17-1.23-6.14-3.42-8.42Zm-8.46 18.3h-.01a9.84 9.84 0 0 1-5.01-1.37l-.36-.21-3.79.99 1.01-3.69-.24-.38a9.84 9.84 0 0 1-1.51-5.24c0-5.43 4.43-9.86 9.88-9.86 2.64 0 5.12 1.03 6.99 2.9a9.8 9.8 0 0 1 2.9 6.99c0 5.44-4.43 9.87-9.86 9.87Zm5.41-7.39c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.74-1.64-2.03-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.48 0 1.45 1.08 2.85 1.23 3.05.15.2 2.11 3.22 5.11 4.52.71.31 1.27.5 1.71.64.72.23 1.37.2 1.88.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/>
+      </svg>
+    </a>
+
+    <!-- Floating Spotify Player -->
+    <div x-data="{ open: false }" class="flex flex-col items-end gap-3">
+
+      <!-- Expanded player card -->
+      <div x-show="open"
+           x-cloak
+           x-transition:enter="transition ease-out duration-200"
+           x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+           x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+           x-transition:leave="transition ease-in duration-150"
+           x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+           x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+           class="rounded-2xl overflow-hidden shadow-2xl border border-bg-700 bg-bg-900 w-[320px]">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-bg-700">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-[#1DB954]"></div>
+            <span class="text-xs font-mono text-gray-400 tracking-widest uppercase">Now Playing</span>
+          </div>
+          <button @click="open = false" aria-label="Close player"
+                  class="text-gray-600 hover:text-gray-300 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <iframe
+          src="https://open.spotify.com/embed/playlist/7egwGqlEttiSXfBdv34HgK?utm_source=generator&theme=0"
+          width="320"
+          height="152"
+          frameborder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          class="block">
+        </iframe>
+      </div>
+
+      <!-- Spotify toggle button -->
+      <button @click="open = !open"
+              title="Toggle music player"
+              class="w-12 h-12 rounded-full bg-[#1DB954] hover:bg-[#1ed760] flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      var html = document.documentElement;
+      var goingLight = !html.classList.contains('light');
+      if (goingLight) {
+        html.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,140 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if testimonial else 'New' }} Testimonial{% endblock %}
+{% block topbar_title %}{{ 'Edit' if testimonial else 'New' }} Testimonial{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <a href="/admin/testimonials/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if testimonial else 'New' }} Testimonial</h2>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_testimonials.edit_testimonial', testimonial_id=testimonial.id) if testimonial else url_for('crm_testimonials.new_testimonial') }}"
+        enctype="multipart/form-data"
+        class="space-y-5">
+    {{ form.hidden_tag() if form is defined }}
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="client_name">Client Name <span class="text-red-400">*</span></label>
+          <input type="text" id="client_name" name="client_name" required
+                 value="{{ testimonial.client_name if testimonial else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Jane Doe" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="job_title">Job Title</label>
+          <input type="text" id="job_title" name="job_title"
+                 value="{{ testimonial.job_title if testimonial else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="CTO, Acme Corp" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="company">Company</label>
+          <input type="text" id="company" name="company"
+                 value="{{ testimonial.company if testimonial else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Acme Corp" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="location">Location</label>
+          <input type="text" id="location" name="location"
+                 value="{{ testimonial.location if testimonial else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="New York, USA" />
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="text">Testimonial Text <span class="text-red-400">*</span></label>
+        <textarea id="text" name="text" rows="5" required
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="What the client said...">{{ testimonial.text if testimonial else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="rating">Rating (1–5)</label>
+          <input type="number" id="rating" name="rating" min="1" max="5" step="0.5"
+                 value="{{ testimonial.rating if testimonial else 5 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="source">Source</label>
+          <select id="source" name="source"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            <option value="direct" {{ 'selected' if testimonial and testimonial.source == 'direct' }}>Direct</option>
+            <option value="upwork" {{ 'selected' if testimonial and testimonial.source == 'upwork' }}>Upwork</option>
+            <option value="google" {{ 'selected' if testimonial and testimonial.source == 'google' }}>Google</option>
+            <option value="linkedin" {{ 'selected' if testimonial and testimonial.source == 'linkedin' }}>LinkedIn</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="sort_order">Sort Order</label>
+          <input type="number" id="sort_order" name="sort_order" min="0"
+                 value="{{ testimonial.sort_order if testimonial else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+        </div>
+      </div>
+
+      <!-- Project Link -->
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="project_id">Linked Project <span class="text-gray-500 font-mono text-xs">(optional)</span></label>
+        <select id="project_id" name="project_id"
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          <option value="">— None —</option>
+          {% if projects %}
+            {% for p in projects %}
+              <option value="{{ p.id }}" {{ 'selected' if testimonial and testimonial.project_id == p.id }}>{{ p.title }}</option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <!-- Visibility -->
+      <div class="flex items-center gap-3">
+        <input type="checkbox" id="is_visible" name="is_visible" value="1"
+               {{ 'checked' if not testimonial or testimonial.is_visible }}
+               class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+        <label for="is_visible" class="text-sm text-gray-300">Visible on site</label>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if testimonial else 'Create Testimonial' }}
+        </button>
+        <a href="/admin/testimonials/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if testimonial %}
+        <form method="POST" action="/admin/testimonials/{{ testimonial.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Delete this testimonial?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

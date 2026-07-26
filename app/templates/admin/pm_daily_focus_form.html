@@ -1,0 +1,92 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if entry else 'New' }} Daily Focus{% endblock %}
+{% block topbar_title %}{{ 'Edit' if entry else 'New' }} Daily Focus{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+  <div class="flex items-center gap-4">
+    <a href="/admin/pm/daily-focus" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if entry else 'New' }} Daily Focus Entry</h2>
+  </div>
+
+  <form method="POST"
+        action="{{ url_for('crm_pm.edit_focus', id=entry.id) if entry else url_for('crm_pm.new_focus') }}"
+        class="space-y-5">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="date">Date <span class="text-red-400">*</span></label>
+          <input type="date" id="date" name="date" required
+                 value="{{ default_date }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono">
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="est_time">Est. Time (hrs)</label>
+          <input type="text" id="est_time" name="est_time"
+                 value="{{ entry.est_time if entry else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="e.g. 4, 2.5, 6 hrs">
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="task_id">Task <span class="text-red-400">*</span></label>
+        <select id="task_id" name="task_id" required
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          <option value="">— Select Task —</option>
+          {% for task in tasks %}
+            <option value="{{ task.id }}" {{ 'selected' if entry and entry.task_id == task.id }}>
+              {{ task.task_id_code }} · {{ task.project.name if task.project else 'No project' }} · {{ task.description | truncate(70) }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="status">Status</label>
+        <select id="status" name="status"
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          {% for val, label in [('not_started','Not Started'),('in_progress','Ongoing'),('completed','Completed')] %}
+            <option value="{{ val }}" {{ 'selected' if entry and entry.status == val else ('selected' if val == 'not_started' and not entry) }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notes">PM Instructions</label>
+        <textarea id="notes" name="notes" rows="4"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="What should the freelancer focus on today?">{{ entry.notes if entry else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if entry else 'Create Entry' }}
+        </button>
+        <a href="/admin/pm/daily-focus"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if entry %}
+        <form method="POST" action="/admin/pm/daily-focus/{{ entry.id }}/delete"
+              onsubmit="return confirm('Delete this focus entry?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

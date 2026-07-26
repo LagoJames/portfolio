@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Lago Brian</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind -->
+  <script>
+    window.tailwindConfig = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: { 950: '#05050a', 900: '#0a0a0f', 800: '#111118', 700: '#18181f', 600: '#21212b' },
+            gold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+          },
+          fontFamily: {
+            heading: ['"Space Grotesk"', 'sans-serif'],
+            mono:    ['"IBM Plex Mono"', 'monospace'],
+            body:    ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>tailwind.config = window.tailwindConfig;</script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Portfolio CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/portfolio.css') }}" />
+</head>
+<body class="bg-bg-950 text-gray-100 font-body antialiased min-h-screen flex items-center justify-center px-4" x-data="{ showPass: false }">
+
+  <div class="w-full max-w-md">
+
+    <!-- Card -->
+    <div class="bg-bg-800 border border-bg-600 rounded-2xl p-8 shadow-2xl">
+
+      <!-- Monogram + Heading -->
+      <div class="flex flex-col items-center mb-8">
+        <div class="w-16 h-16 rounded-xl bg-gold-500 flex items-center justify-center mb-4 shadow-lg shadow-gold-500/20">
+          <span class="font-heading font-bold text-bg-950 text-2xl">LB</span>
+        </div>
+        <h1 class="font-heading font-semibold text-white text-2xl">Admin Login</h1>
+        <p class="text-gray-500 text-sm font-mono mt-1">Lago Brian · CRM Access</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-5 space-y-2">
+            {% for category, message in messages %}
+              <div class="px-4 py-3 rounded-lg border text-sm
+                {% if category == 'error' %}bg-red-950/60 border-red-700/50 text-red-200
+                {% elif category == 'success' %}bg-green-950/60 border-green-700/50 text-green-200
+                {% else %}bg-bg-700 border-bg-600 text-gray-200{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Login Form -->
+      <form method="POST" action="{{ url_for('crm_auth.login') }}" class="space-y-5">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div>
+          <label for="email" class="form-label block text-sm text-gray-300 mb-1.5">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="admin@lagobrian.com"
+            class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="form-label block text-sm text-gray-300 mb-1.5">Password</label>
+          <div class="relative">
+            <input
+              :type="showPass ? 'text' : 'password'"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 pr-12 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-colors"
+            />
+            <button
+              type="button"
+              @click="showPass = !showPass"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              <svg x-show="!showPass" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <svg x-show="showPass" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold py-2.5 rounded-lg transition-colors text-sm tracking-wide mt-2"
+        >
+          Sign In
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <p class="text-center text-gray-600 text-xs font-mono mt-6">
+        &copy; {{ now.year if now is defined else 2026 }} Lago Brian · Private Access
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

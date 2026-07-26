@@ -1,0 +1,100 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Active Projects{% endblock %}
+{% block topbar_title %}Active Projects{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Active Projects</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">{{ active_projects | length }} total</p>
+    </div>
+    <a href="/admin/active-projects/new/"
+       class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+      <i data-lucide="plus" class="w-4 h-4"></i> Add Project
+    </a>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Project Name</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Client</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Badges</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Expected Finish</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Source</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if active_projects %}
+            {% for ap in active_projects %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3 text-white font-medium">{{ ap.project_name }}</td>
+                <td class="px-5 py-3 text-gray-400 hidden md:table-cell">
+                  {% if ap.is_anonymous %}
+                    <span class="text-gray-500 italic">Anonymous</span>
+                  {% else %}
+                    {{ ap.client_name | default('—') }}
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3">
+                  {% set s = ap.status | default('in_progress') %}
+                  {% if s == 'in_progress' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">In Progress</span>
+                  {% elif s == 'completed' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+                  {% elif s == 'on_hold' %}<span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">On Hold</span>
+                  {% elif s == 'cancelled' %}<span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Cancelled</span>
+                  {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">{{ s | title }}</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 hidden lg:table-cell">
+                  <div class="flex gap-1.5">
+                    {% if ap.is_private %}
+                      <span class="bg-gray-800 text-gray-400 border border-gray-700 text-xs font-mono px-2 py-0.5 rounded">Private</span>
+                    {% endif %}
+                    {% if ap.is_anonymous %}
+                      <span class="bg-bg-700 text-gray-500 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded">Anon</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">
+                  {{ ap.expected_finish.strftime('%b %d, %Y') if ap.expected_finish else '—' }}
+                </td>
+                <td class="px-5 py-3 hidden md:table-cell">
+                  {% if ap.source == 'website' %}
+                    <span class="bg-gold-900/30 text-gold-400 border border-gold-700/30 text-xs font-mono px-2 py-0.5 rounded">Website</span>
+                  {% else %}
+                    <span class="bg-bg-700 text-gray-500 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded">{{ ap.source | default('External') | title }}</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/active-projects/{{ ap.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/active-projects/{{ ap.id }}/delete/"
+                          onsubmit="return confirm('Delete this active project?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-5 py-10 text-center text-gray-500 font-mono text-sm">No active projects.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,228 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}PM Overview{% endblock %}
+{% block topbar_title %}PM Overview{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{}">
+
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Project Management</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">{{ today.strftime('%A, %B %d, %Y') }}</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <form method="GET" action="/admin/pm/" class="hidden xl:block">
+        <div class="relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input type="text" name="q" value="{{ global_query or '' }}" placeholder="Global search..."
+                 class="w-64 bg-bg-800 border border-bg-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500">
+        </div>
+      </form>
+      <a href="/admin/pm/projects/new"
+         class="inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Project
+      </a>
+    </div>
+  </div>
+
+  {% if global_query %}
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700">
+        <h3 class="font-heading font-semibold text-white text-sm">Search Results</h3>
+      </div>
+      {% if search_results %}
+        <div class="divide-y divide-bg-700/50">
+          {% for item in search_results %}
+            <a href="{{ item.href }}" class="block px-5 py-3 hover:bg-bg-700/30 transition-colors">
+              <p class="text-white text-sm">{{ item.label }}</p>
+              <p class="text-gray-500 font-mono text-xs mt-1">{{ item.meta }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No matches found for "{{ global_query }}".</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- Stats Row -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Active Projects</p>
+      <p class="text-3xl font-heading font-bold text-white">{{ active_projects | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Total Revenue</p>
+      <p class="text-3xl font-heading font-bold text-green-400">${{ '{:,.0f}'.format(total_revenue) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Outstanding</p>
+      <p class="text-3xl font-heading font-bold {{ 'text-red-400' if total_outstanding > 0 else 'text-gray-500' }}">${{ '{:,.0f}'.format(total_outstanding) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Tasks This Week</p>
+      <p class="text-3xl font-heading font-bold text-blue-400">{{ week_tasks | length }}</p>
+    </div>
+  </div>
+
+  <!-- Two-column: Today's Focus + This Week's Tasks -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Today's Focus -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sun" class="w-4 h-4 text-yellow-400"></i>
+          <h3 class="font-heading font-semibold text-white text-sm">Today's Focus</h3>
+        </div>
+        <a href="/admin/pm/daily-focus/new?date={{ today.isoformat() }}"
+           class="text-xs font-mono text-gold-400 hover:text-gold-300 transition-colors">+ Add</a>
+      </div>
+      {% if today_focus %}
+        <ul class="divide-y divide-bg-700/50">
+          {% for f in today_focus %}
+            <li class="px-5 py-3 flex items-start gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-sm truncate">{{ f.task.description }}</p>
+                <p class="text-gray-500 font-mono text-xs mt-0.5">
+                  {{ f.task.project.name if f.task and f.task.project else '—' }}
+                  {% if f.est_time %} · {{ f.est_time }}{% endif %}
+                </p>
+              </div>
+              {% set fs = f.status %}
+              {% if fs == 'done' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full flex-shrink-0">Done</span>
+              {% elif fs == 'in_progress' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full flex-shrink-0">In Progress</span>
+              {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full flex-shrink-0">Pending</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="px-5 py-8 text-center">
+          <i data-lucide="calendar-x" class="w-8 h-8 text-gray-600 mx-auto mb-2"></i>
+          <p class="text-gray-500 font-mono text-sm">No focus items for today.</p>
+          <a href="/admin/pm/daily-focus/new?date={{ today.isoformat() }}"
+             class="mt-2 inline-block text-xs font-mono text-gold-400 hover:text-gold-300">Plan your day →</a>
+        </div>
+      {% endif %}
+      <div class="px-5 py-3 border-t border-bg-700">
+        <a href="/admin/pm/daily-focus" class="text-xs font-mono text-gray-500 hover:text-white transition-colors">View all focus entries →</a>
+      </div>
+    </div>
+
+    <!-- This Week's Tasks -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center gap-2">
+        <i data-lucide="calendar-days" class="w-4 h-4 text-blue-400"></i>
+        <h3 class="font-heading font-semibold text-white text-sm">Due This Week</h3>
+      </div>
+      {% if week_tasks %}
+        <ul class="divide-y divide-bg-700/50">
+          {% for t in week_tasks[:8] %}
+            <li class="px-5 py-3 flex items-start gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-sm truncate">{{ t.description }}</p>
+                <p class="text-gray-500 font-mono text-xs mt-0.5">
+                  {{ t.project.client.name if t.project and t.project.client else '—' }} · {{ t.project.name if t.project else '—' }}
+                </p>
+              </div>
+              <span class="text-gray-500 font-mono text-xs flex-shrink-0">{{ t.due_date.strftime('%b %d') if t.due_date else '' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="px-5 py-8 text-center">
+          <i data-lucide="check-circle-2" class="w-8 h-8 text-gray-600 mx-auto mb-2"></i>
+          <p class="text-gray-500 font-mono text-sm">No tasks due this week.</p>
+        </div>
+      {% endif %}
+      <div class="px-5 py-3 border-t border-bg-700">
+        <a href="/admin/pm/tasks" class="text-xs font-mono text-gray-500 hover:text-white transition-colors">View all tasks →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Projects -->
+  {% if active_projects %}
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center gap-2">
+      <i data-lucide="rocket" class="w-4 h-4 text-purple-400"></i>
+      <h3 class="font-heading font-semibold text-white text-sm">Active Projects</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-bg-700/50">
+      {% for p in active_projects %}
+        <a href="/admin/pm/projects/{{ p.id }}"
+           class="px-5 py-4 hover:bg-bg-700/30 transition-colors">
+          <p class="text-white font-semibold text-sm truncate">{{ p.name }}</p>
+          <p class="text-gray-500 font-mono text-xs mt-0.5">{{ p.client_name | default('No client') }}</p>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-green-400 font-mono text-xs">${{ '{:,.0f}'.format(p.paid) }} paid</span>
+            {% if p.balance and p.balance > 0 %}
+              <span class="text-red-400 font-mono text-xs">${{ '{:,.0f}'.format(p.balance) }} due</span>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recent Activity Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Recent Payments -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center gap-2">
+        <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-400"></i>
+        <h3 class="font-heading font-semibold text-white text-sm">Recent Payments</h3>
+      </div>
+      {% if recent_payments %}
+        <ul class="divide-y divide-bg-700/50">
+          {% for pay in recent_payments %}
+            <li class="px-5 py-3 flex items-center gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-sm truncate">{{ pay.project.name if pay.project else '—' }}</p>
+                <p class="text-gray-500 font-mono text-xs">{{ pay.date.strftime('%b %d') if pay.date else '—' }} · {{ pay.payment_method | default('') | title }}</p>
+              </div>
+              <span class="text-green-400 font-mono font-semibold text-sm">${{ '{:,.0f}'.format(pay.amount) if pay.amount else '—' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No payments recorded.</p>
+      {% endif %}
+      <div class="px-5 py-3 border-t border-bg-700">
+        <a href="/admin/pm/payments" class="text-xs font-mono text-gray-500 hover:text-white transition-colors">View all payments →</a>
+      </div>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center gap-2">
+        <i data-lucide="receipt" class="w-4 h-4 text-red-400"></i>
+        <h3 class="font-heading font-semibold text-white text-sm">Recent Expenses</h3>
+      </div>
+      {% if recent_expenses %}
+        <ul class="divide-y divide-bg-700/50">
+          {% for e in recent_expenses %}
+            <li class="px-5 py-3 flex items-center gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-sm truncate">{{ e.item }}</p>
+                <p class="text-gray-500 font-mono text-xs">{{ e.date.strftime('%b %d') if e.date else '—' }}{% if e.category %} · {{ e.category }}{% endif %}</p>
+              </div>
+              <span class="text-red-400 font-mono font-semibold text-sm">${{ '{:,.0f}'.format(e.cost) if e.cost else '—' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No expenses recorded.</p>
+      {% endif %}
+      <div class="px-5 py-3 border-t border-bg-700">
+        <a href="/admin/pm/expenses" class="text-xs font-mono text-gray-500 hover:text-white transition-colors">View all expenses →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

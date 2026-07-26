@@ -1,0 +1,290 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}PM: {{ pm_project.name }}{% endblock %}
+{% block topbar_title %}Project Detail{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div class="flex items-start gap-4">
+      <a href="/admin/pm/clients" class="text-gray-500 hover:text-white transition-colors mt-1">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <h2 class="font-heading font-semibold text-2xl text-white">{{ pm_project.name }}</h2>
+          {% if pm_project.status == 'completed' %}
+            <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+          {% elif pm_project.status == 'on_hold' %}
+            <span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">On Hold</span>
+          {% elif pm_project.status == 'cancelled' %}
+            <span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Cancelled</span>
+          {% else %}
+            <span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Ongoing</span>
+          {% endif %}
+        </div>
+        <p class="text-gray-500 text-xs font-mono mt-1">Client: {{ pm_project.client_name | default('—') }} · Project ID {{ pm_project.id }}</p>
+      </div>
+    </div>
+    {% if pm_can_write %}
+      <a href="/admin/pm/projects/{{ pm_project.id }}/edit"
+         class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="pencil" class="w-4 h-4"></i> Edit Project
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-2 xl:grid-cols-5 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Budget</p>
+      <p class="text-2xl font-heading font-bold text-white">${{ '{:,.0f}'.format(pm_project.budget or 0) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Amount Paid</p>
+      <p class="text-2xl font-heading font-bold text-emerald-400">${{ '{:,.0f}'.format(pm_project.paid or 0) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Balance</p>
+      <p class="text-2xl font-heading font-bold {{ 'text-red-400' if pm_project.balance > 0 else 'text-gray-500' }}">${{ '{:,.0f}'.format(pm_project.balance or 0) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Task Progress</p>
+      <p class="text-2xl font-heading font-bold text-blue-400">{{ completed_tasks }}/{{ total_tasks }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Actual Hours</p>
+      <p class="text-2xl font-heading font-bold text-white">{{ '{:,.1f}'.format(total_actual_hours or 0) }}</p>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Project Summary</h3>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div>
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-wide mb-1">Client</p>
+        <p class="text-gray-300 text-sm">{{ pm_project.client_name | default('—') }}</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-wide mb-1">Status</p>
+        <p class="text-gray-300 text-sm">{{ project_status_labels.get(pm_project.status, pm_project.status | replace('_', ' ') | title) }}</p>
+      </div>
+      <div class="md:col-span-2">
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-wide mb-1">Notes</p>
+        <p class="text-gray-300 text-sm">{{ pm_project.notes or 'No project notes yet.' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <div>
+        <h3 class="font-heading font-semibold text-white text-sm">Tasks</h3>
+        <p class="text-gray-500 font-mono text-xs mt-1">{{ completed_tasks }} completed of {{ total_tasks }} total</p>
+      </div>
+      {% if pm_can_write %}
+        <a href="/admin/pm/tasks/new?project_id={{ pm_project.id }}"
+           class="inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
+        </a>
+      {% endif %}
+    </div>
+    <div class="px-5 pt-4">
+      <div class="w-full h-2 rounded-full bg-bg-700 overflow-hidden">
+        <div class="h-full bg-emerald-500" style="width: {{ (completed_tasks / total_tasks * 100) if total_tasks else 0 }}%"></div>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Task</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Priority</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Due</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Est. Hrs</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+              <td class="px-5 py-3">
+                <div class="text-white">{{ task.description }}</div>
+                <div class="text-gray-500 text-xs mt-1">{{ task.task_id_code or 'No ID' }}</div>
+              </td>
+              <td class="px-5 py-3">
+                <span class="bg-bg-700 text-gray-300 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">
+                  {{ task_status_labels.get(task.status, task.status | replace('_', ' ') | title) }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden md:table-cell">{{ task.priority or '—' }}</td>
+              <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">{{ task.due_date.strftime('%b %d, %Y') if task.due_date else '—' }}</td>
+              <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">{{ task.estimated_hours if task.estimated_hours is not none else '—' }}</td>
+              <td class="px-5 py-3 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="/admin/pm/tasks/{{ task.id }}/log" class="text-gray-400 hover:text-blue-400 transition-colors">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                  </a>
+                  {% if pm_can_write %}
+                    <a href="/admin/pm/tasks/{{ task.id }}/edit" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No tasks yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-2">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+        <h3 class="font-heading font-semibold text-white text-sm">Daily Focus</h3>
+        {% if pm_can_write %}
+          <a href="/admin/pm/daily-focus/new" class="text-xs font-mono text-gold-400 hover:text-gold-300 transition-colors">+ Schedule</a>
+        {% endif %}
+      </div>
+      <div class="divide-y divide-bg-700/50">
+        {% for entry in focus_entries[:6] %}
+          <div class="px-5 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-white text-sm">{{ entry.task.description if entry.task else 'Unknown task' }}</p>
+              <span class="text-gray-500 font-mono text-xs">{{ entry.date.strftime('%b %d') if entry.date else '—' }}</span>
+            </div>
+            <p class="text-gray-500 font-mono text-xs mt-1">{{ entry.est_time or '—' }} · {{ task_status_labels.get(entry.status, entry.status | replace('_', ' ') | title) }}</p>
+          </div>
+        {% else %}
+          <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No scheduled focus entries.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+        <h3 class="font-heading font-semibold text-white text-sm">Task Log</h3>
+        <a href="/admin/pm/task-log" class="text-xs font-mono text-gray-500 hover:text-white transition-colors">View all</a>
+      </div>
+      <div class="divide-y divide-bg-700/50">
+        {% for log in logs[:6] %}
+          <div class="px-5 py-3">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-white text-sm">{{ log.task.description if log.task else 'Unknown task' }}</p>
+              <span class="text-gray-500 font-mono text-xs">{{ log.actual_time or '—' }}</span>
+            </div>
+            <p class="text-gray-500 font-mono text-xs mt-1">{{ log.date.strftime('%b %d, %Y') if log.date else '—' }}</p>
+          </div>
+        {% else %}
+          <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No work logs yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-2">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+        <h3 class="font-heading font-semibold text-white text-sm">Payments</h3>
+        {% if pm_can_write %}
+          <a href="/admin/pm/payments/new?project_id={{ pm_project.id }}" class="text-xs font-mono text-gold-400 hover:text-gold-300 transition-colors">+ Record</a>
+        {% endif %}
+      </div>
+      <div class="divide-y divide-bg-700/50">
+        {% for pay in payments[:6] %}
+          <div class="px-5 py-3 flex items-center justify-between gap-3">
+            <div>
+              <p class="text-white text-sm">{{ pay.date.strftime('%b %d, %Y') if pay.date else '—' }}</p>
+              <p class="text-gray-500 font-mono text-xs mt-1">{{ pay.payment_method | replace('_', ' ') | title if pay.payment_method else '—' }}</p>
+            </div>
+            <span class="text-emerald-400 font-mono font-semibold">${{ '{:,.0f}'.format(pay.amount or 0) }}</span>
+          </div>
+        {% else %}
+          <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No payments recorded.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl">
+      <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+        <h3 class="font-heading font-semibold text-white text-sm">Invoices</h3>
+        {% if pm_can_write %}
+          <a href="/admin/pm/invoices/new?project_id={{ pm_project.id }}" class="text-xs font-mono text-gold-400 hover:text-gold-300 transition-colors">+ Create</a>
+        {% endif %}
+      </div>
+      <div class="divide-y divide-bg-700/50">
+        {% for inv in invoices[:6] %}
+          <div class="px-5 py-3 flex items-center justify-between gap-3">
+            <div>
+              <p class="text-white text-sm">{{ inv.invoice_number or '—' }}</p>
+              <p class="text-gray-500 font-mono text-xs mt-1">{{ inv.payment_status | replace('_', ' ') | title }}</p>
+            </div>
+            <span class="text-white font-mono">${{ '{:,.0f}'.format(inv.amount or 0) }}</span>
+          </div>
+        {% else %}
+          <p class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No invoices created.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl">
+    <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+      <div>
+        <h3 class="font-heading font-semibold text-white text-sm">Project Expense Tracker</h3>
+        <p class="text-gray-500 font-mono text-xs mt-1">Profitability summary for this specific project.</p>
+      </div>
+      {% if pm_can_write %}
+        <a href="/admin/pm/expenses/new" class="text-xs font-mono text-gold-400 hover:text-gold-300 transition-colors">+ Add Expense</a>
+      {% endif %}
+    </div>
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 p-5 border-b border-bg-700">
+      <div class="bg-bg-900/50 border border-bg-700 rounded-lg p-4">
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Revenue</p>
+        <p class="text-xl font-heading font-bold text-emerald-400">${{ '{:,.0f}'.format(revenue or 0) }}</p>
+      </div>
+      <div class="bg-bg-900/50 border border-bg-700 rounded-lg p-4">
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Expenses</p>
+        <p class="text-xl font-heading font-bold text-red-400">${{ '{:,.0f}'.format(exp_total or 0) }}</p>
+      </div>
+      <div class="bg-bg-900/50 border border-bg-700 rounded-lg p-4">
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Net Profit</p>
+        <p class="text-xl font-heading font-bold {{ 'text-emerald-400' if net_profit >= 0 else 'text-red-400' }}">${{ '{:,.0f}'.format(net_profit or 0) }}</p>
+      </div>
+      <div class="bg-bg-900/50 border border-bg-700 rounded-lg p-4">
+        <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Profit Margin</p>
+        <p class="text-xl font-heading font-bold text-white">{{ '{:,.1f}'.format(profit_margin or 0) }}%</p>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Item</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Category</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exp in expenses %}
+            <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+              <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ exp.date.strftime('%b %d, %Y') if exp.date else '—' }}</td>
+              <td class="px-5 py-3">
+                <div class="text-white">{{ exp.item }}</div>
+                <div class="text-gray-500 text-xs mt-1">{{ exp.notes or '' }}</div>
+              </td>
+              <td class="px-5 py-3 text-gray-400 hidden md:table-cell">{{ exp.category or '—' }}</td>
+              <td class="px-5 py-3 text-right text-red-400 font-mono">${{ '{:,.0f}'.format(exp.cost or 0) }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4" class="px-5 py-6 text-center text-gray-500 font-mono text-sm">No project expenses yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

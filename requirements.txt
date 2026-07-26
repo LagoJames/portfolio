@@ -1,0 +1,28 @@
+# Core
+Flask>=3.0
+Flask-SQLAlchemy>=3.1
+Flask-Migrate>=4.0
+Flask-Login>=0.6
+Flask-WTF>=1.2
+WTForms>=3.1
+SQLAlchemy>=2.0
+psycopg2-binary>=2.9
+bcrypt>=4.1
+python-dotenv>=1.0
+gunicorn>=22.0
+
+# Integrations
+requests>=2.31
+stripe>=14.0.0
+feedparser>=6.0
+Pillow>=10.0
+bleach>=6.0
+itsdangerous>=2.2
+markdown>=3.6
+
+# PDF generation
+fpdf2>=2.7
+openpyxl>=3.1
+
+# Scheduling
+APScheduler>=3.10

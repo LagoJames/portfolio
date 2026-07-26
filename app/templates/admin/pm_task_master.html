@@ -1,0 +1,247 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Task Master{% endblock %}
+{% block topbar_title %}Task Master{% endblock %}
+
+{% block content %}
+{% set completed_tasks = tasks | selectattr('status', 'equalto', 'completed') | list %}
+{% set blocked_tasks = tasks | selectattr('status', 'equalto', 'blocked') | list %}
+{% set high_priority_tasks = tasks | selectattr('priority', 'in', ['4/5', '5/5']) | list %}
+<div
+  class="space-y-6"
+  x-data="{
+    search: '',
+    clientFilter: '',
+    projectFilter: '',
+    statusFilter: '',
+    priorityFilter: '',
+    dueFrom: '',
+    dueTo: '',
+    matchesTask(task) {
+      const term = this.search.trim().toLowerCase();
+      const searchable = `${task.code} ${task.description} ${task.project} ${task.client} ${task.notes}`.toLowerCase();
+      const matchesSearch = !term || searchable.includes(term);
+      const matchesClient = !this.clientFilter || String(task.clientId) === this.clientFilter;
+      const matchesProject = !this.projectFilter || String(task.projectId) === this.projectFilter;
+      const matchesStatus = !this.statusFilter || task.status === this.statusFilter;
+      const matchesPriority = !this.priorityFilter || task.priority === this.priorityFilter;
+      const matchesFrom = !this.dueFrom || (task.dueDate && task.dueDate >= this.dueFrom);
+      const matchesTo = !this.dueTo || (task.dueDate && task.dueDate <= this.dueTo);
+      return matchesSearch && matchesClient && matchesProject && matchesStatus && matchesPriority && matchesFrom && matchesTo;
+    }
+  }"
+>
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Task Master</h2>
+      <p class="text-gray-500 text-sm mt-1">Master list of project tasks with client, project, due date, status, and priority in one place.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{{ url_for('crm_pm.export_section', section='tasks', fmt='csv') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="download" class="w-4 h-4"></i> CSV
+      </a>
+      <a href="{{ url_for('crm_pm.export_section', section='tasks', fmt='xlsx') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="sheet" class="w-4 h-4"></i> XLSX
+      </a>
+      <a href="/admin/pm/tasks/new"
+         class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Task
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Total Tasks</p>
+      <p class="text-3xl font-heading font-bold text-white">{{ tasks | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Completed</p>
+      <p class="text-3xl font-heading font-bold text-emerald-400">{{ completed_tasks | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">High Priority</p>
+      <p class="text-3xl font-heading font-bold text-red-400">{{ high_priority_tasks | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Blocked</p>
+      <p class="text-3xl font-heading font-bold text-yellow-400">{{ blocked_tasks | length }}</p>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-4 space-y-3">
+    <div class="flex flex-wrap gap-3">
+      <div class="relative flex-1 min-w-[220px]">
+        <i data-lucide="search" class="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input type="text" x-model="search" placeholder="Search task ID, client, project, or task description..."
+               class="w-full bg-bg-700 border border-bg-600 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
+      </div>
+      <select x-model="clientFilter"
+              class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500">
+        <option value="">All Clients</option>
+        {% for c in clients %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+      <select x-model="projectFilter"
+              class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500">
+        <option value="">All Projects</option>
+        {% for project in pm_projects %}
+          <option value="{{ project.id }}">{{ project.name }}</option>
+        {% endfor %}
+      </select>
+      <select x-model="statusFilter"
+              class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500">
+        <option value="">All Statuses</option>
+        <option value="not_started">Not Started</option>
+        <option value="in_progress">Ongoing</option>
+        <option value="completed">Completed</option>
+        <option value="blocked">Blocked</option>
+      </select>
+      <select x-model="priorityFilter"
+              class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500">
+        <option value="">All Priorities</option>
+        <option value="1/5">1/5</option>
+        <option value="2/5">2/5</option>
+        <option value="3/5">3/5</option>
+        <option value="4/5">4/5</option>
+        <option value="5/5">5/5</option>
+      </select>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2">
+        <label for="due_from" class="text-xs font-mono text-gray-500 uppercase tracking-widest">Due From</label>
+        <input id="due_from" type="date" x-model="dueFrom"
+               class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500 font-mono">
+      </div>
+      <div class="flex items-center gap-2">
+        <label for="due_to" class="text-xs font-mono text-gray-500 uppercase tracking-widest">Due To</label>
+        <input id="due_to" type="date" x-model="dueTo"
+               class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500 font-mono">
+      </div>
+      <button type="button"
+              @click="search=''; clientFilter=''; projectFilter=''; statusFilter=''; priorityFilter=''; dueFrom=''; dueTo='';"
+              class="inline-flex items-center gap-1.5 text-xs font-mono text-gray-400 hover:text-white transition-colors">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset filters
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700 bg-bg-900/40">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide w-28">Task ID</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Task</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Project</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Client</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Priority</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden xl:table-cell">Est. Hrs</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Due</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if tasks %}
+            {% for task in tasks %}
+              {% set task_status = task.status | default('not_started') %}
+              {% set task_priority = task.priority | default('3/5') %}
+              {% set project_name = task.project.name if task.project else '' %}
+              {% set client_name = task.project.client.name if task.project and task.project.client else '' %}
+              {% set due_value = task.due_date.strftime('%Y-%m-%d') if task.due_date else '' %}
+              <tr
+                class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors"
+                x-show="matchesTask({
+                  code: {{ (task.task_id_code or '') | tojson }},
+                  description: {{ (task.description or '') | tojson }},
+                  project: {{ project_name | tojson }},
+                  client: {{ client_name | tojson }},
+                  notes: {{ (task.notes or '') | tojson }},
+                  status: {{ task_status | tojson }},
+                  priority: {{ task_priority | tojson }},
+                  projectId: {{ task.project.id if task.project else 'null' }},
+                  clientId: {{ task.project.client.id if task.project and task.project.client else 'null' }},
+                  dueDate: {{ due_value | tojson }}
+                })"
+                x-transition
+              >
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs">{{ task.task_id_code | default('—') }}</td>
+                <td class="px-5 py-3">
+                  <div class="text-white">{{ task.description }}</div>
+                  <div class="text-gray-500 text-xs mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                    <span class="md:hidden">{{ project_name if project_name else 'No project' }}</span>
+                    {% if task.notes %}
+                      <span class="truncate max-w-xs">{{ task.notes }}</span>
+                    {% elif task.actual_hours %}
+                      <span>Actual: {{ task.actual_hours }}h</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="px-5 py-3 hidden md:table-cell">
+                  {% if task.project %}
+                    <a href="/admin/pm/projects/{{ task.project.id }}"
+                       class="text-gray-300 hover:text-white transition-colors">{{ task.project.name }}</a>
+                  {% else %}—{% endif %}
+                </td>
+                <td class="px-5 py-3 text-gray-400 text-xs hidden lg:table-cell">
+                  {{ client_name if client_name else '—' }}
+                </td>
+                <td class="px-5 py-3">
+                  {% if task_status == 'completed' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+                  {% elif task_status == 'in_progress' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Ongoing</span>
+                  {% elif task_status == 'blocked' %}<span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Blocked</span>
+                  {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">Not Started</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 hidden md:table-cell">
+                  {% if task_priority in ['4/5', '5/5'] %}<span class="text-red-400 text-xs font-mono">{{ task_priority }}</span>
+                  {% elif task_priority in ['1/5', '2/5'] %}<span class="text-gray-500 text-xs font-mono">{{ task_priority }}</span>
+                  {% else %}<span class="text-yellow-400 text-xs font-mono">{{ task_priority }}</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden xl:table-cell">
+                  {{ task.estimated_hours if task.estimated_hours is not none else '—' }}
+                </td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">
+                  {{ task.due_date.strftime('%b %d, %Y') if task.due_date else '—' }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/pm/tasks/{{ task.id }}/log" title="Log time"
+                       class="text-gray-400 hover:text-blue-400 transition-colors">
+                      <i data-lucide="clock" class="w-4 h-4"></i>
+                    </a>
+                    <a href="/admin/pm/tasks/{{ task.id }}/edit" title="Edit task"
+                       class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/pm/tasks/{{ task.id }}/delete"
+                          onsubmit="return confirm('Delete this task?')" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors" title="Delete task">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="9" class="px-5 py-12 text-center">
+                <i data-lucide="check-square" class="w-10 h-10 text-gray-600 mx-auto mb-2"></i>
+                <p class="text-gray-500 font-mono text-sm">No tasks found.</p>
+                <a href="/admin/pm/tasks/new" class="mt-2 inline-block text-xs font-mono text-blue-400 hover:text-blue-300">Create a task →</a>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Blog Posts{% endblock %}
+{% block topbar_title %}Blog{% endblock %}
+
+{% block content %}
+<div class="space-y-5" x-data="{ search: '', status: '', category: '' }">
+
+  <!-- ===== Header ===== -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Blog Posts</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">{{ posts | length }} total</p>
+    </div>
+    <a href="/admin/blog/new/"
+       class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      New Post
+    </a>
+  </div>
+
+  <!-- ===== Filter Bar ===== -->
+  <div class="flex flex-col sm:flex-row gap-3">
+    <input
+      type="text"
+      x-model="search"
+      placeholder="Search posts..."
+      class="form-input flex-1 bg-bg-800 border border-bg-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+    />
+    <select
+      x-model="category"
+      class="form-input bg-bg-800 border border-bg-600 rounded-lg px-4 py-2 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+    >
+      <option value="">All Categories</option>
+      <option value="Thoughts">Thoughts</option>
+      <option value="Books">Books</option>
+      <option value="Music">Music</option>
+      <option value="Movies">Movies</option>
+      <option value="Technology">Technology</option>
+      <option value="Markets">Markets</option>
+      <option value="Life">Life</option>
+    </select>
+    <select
+      x-model="status"
+      class="form-input bg-bg-800 border border-bg-600 rounded-lg px-4 py-2 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+    >
+      <option value="">All Statuses</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+  </div>
+
+  <!-- ===== Table ===== -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Title</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden sm:table-cell">Category</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-center px-3 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Featured</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Date</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if posts %}
+            {% for post in posts %}
+              {# determine filter values for Alpine #}
+              {% set post_status = 'published' if post.is_published else 'draft' %}
+              {% set post_cat    = post.category | default('') %}
+
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors"
+                  x-show="
+                    (search   === '' || '{{ post.title | lower | replace("'", "\\'") }}'.includes(search.toLowerCase())) &&
+                    (category === '' || category === '{{ post_cat }}') &&
+                    (status   === '' || status   === '{{ post_status }}')
+                  ">
+
+                <!-- Title + slug -->
+                <td class="px-5 py-3 max-w-xs">
+                  <span class="text-white font-medium block truncate">{{ post.title }}</span>
+                  <span class="text-gray-600 text-xs font-mono block truncate">/blog/{{ post.slug }}</span>
+                </td>
+
+                <!-- Category -->
+                <td class="px-5 py-3 hidden sm:table-cell">
+                  {% if post.category %}
+                    {% if post.category == 'Books' %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-amber-900/30 text-amber-400 border-amber-800/40">{{ post.category }}</span>
+                    {% elif post.category == 'Music' %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-purple-900/30 text-purple-400 border-purple-800/40">{{ post.category }}</span>
+                    {% elif post.category == 'Movies' %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-red-900/30 text-red-400 border-red-800/40">{{ post.category }}</span>
+                    {% elif post.category == 'Technology' %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-blue-900/30 text-blue-400 border-blue-800/40">{{ post.category }}</span>
+                    {% elif post.category == 'Markets' %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-green-900/30 text-green-400 border-green-800/40">{{ post.category }}</span>
+                    {% elif post.category == 'Life' %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-rose-900/30 text-rose-400 border-rose-800/40">{{ post.category }}</span>
+                    {% else %}
+                      <span class="px-2 py-0.5 rounded border text-xs font-mono bg-gold-900/30 text-gold-400 border-gold-800/40">{{ post.category }}</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="text-gray-600 text-xs font-mono">—</span>
+                  {% endif %}
+                </td>
+
+                <!-- Status -->
+                <td class="px-5 py-3">
+                  {% if post.is_published %}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono bg-green-900/30 text-green-400 border border-green-800/40">
+                      <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                      Published
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono bg-bg-700 text-gray-500 border border-bg-600">
+                      <span class="w-1.5 h-1.5 rounded-full bg-gray-600"></span>
+                      Draft
+                    </span>
+                  {% endif %}
+                </td>
+
+                <!-- Featured Star -->
+                <td class="px-3 py-3 text-center hidden md:table-cell">
+                  {% if post.is_featured %}
+                    <i data-lucide="star" class="w-4 h-4 mx-auto text-gold-400 fill-gold-400"></i>
+                  {% else %}
+                    <i data-lucide="star" class="w-4 h-4 mx-auto text-gray-700"></i>
+                  {% endif %}
+                </td>
+
+                <!-- Date -->
+                <td class="px-5 py-3 text-gray-500 font-mono text-xs hidden lg:table-cell">
+                  {{ post.published_at.strftime('%b %d, %Y') if post.published_at else
+                     post.created_at.strftime('%b %d, %Y') if post.created_at else '—' }}
+                </td>
+
+                <!-- Actions -->
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    {% if post.is_published %}
+                      <a href="{{ url_for('public.blog_detail', slug=post.slug) }}"
+                         target="_blank" rel="noopener noreferrer"
+                         class="text-gray-500 hover:text-blue-400 transition-colors" title="View live post">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                      </a>
+                    {% endif %}
+                    <a href="/admin/blog/{{ post.id }}/edit/"
+                       class="text-gray-400 hover:text-gold-400 transition-colors" title="Edit">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST"
+                          action="/admin/blog/{{ post.id }}/delete/"
+                          onsubmit="return confirm('Permanently delete \'{{ post.title | replace("'", "\\'") }}\'?')"
+                          class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit"
+                              class="text-gray-400 hover:text-red-400 transition-colors" title="Delete">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" class="px-5 py-12 text-center text-gray-500 font-mono text-sm">
+                No blog posts yet.
+                <a href="/admin/blog/new/" class="text-gold-400 hover:underline ml-1">Write your first post →</a>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  {% if posts %}
+    <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 pt-1">
+      <span>
+        <span class="text-green-400 font-semibold">
+          {{ posts | selectattr('is_published') | list | length }}
+        </span> published
+      </span>
+      <span>
+        <span class="text-gray-400 font-semibold">
+          {{ posts | rejectattr('is_published') | list | length }}
+        </span> drafts
+      </span>
+      <span>
+        <span class="text-gold-400 font-semibold">
+          {{ posts | selectattr('is_featured') | list | length }}
+        </span> featured
+      </span>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

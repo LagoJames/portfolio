@@ -1,0 +1,266 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if project else 'New' }} Project{% endblock %}
+{% block topbar_title %}{{ 'Edit' if project else 'New' }} Project{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl space-y-6" x-data="{
+  imagePreview: '{{ project.image_url if project and project.image_url else '' }}',
+  source: '{{ project.source if project else '' }}',
+  handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => { this.imagePreview = ev.target.result; };
+      reader.readAsDataURL(file);
+    }
+  }
+}">
+
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <a href="/admin/projects/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if project else 'New' }} Project</h2>
+      {% if project %}
+        <p class="text-gray-500 text-xs font-mono mt-0.5">ID: {{ project.id }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <form method="POST"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        action="{{ url_for('crm_projects.edit_project', project_id=project.id) if project else url_for('crm_projects.new_project') }}"
+        enctype="multipart/form-data"
+        class="space-y-6">
+    {{ form.hidden_tag() if form is defined }}
+
+    <!-- ===== SECTION: Basic Info ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Basic Information</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="title">Title <span class="text-red-400">*</span></label>
+          <input type="text" id="title" name="title" required
+                 value="{{ project.title if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Project title" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="slug">Slug</label>
+          <input type="text" id="slug" name="slug"
+                 value="{{ project.slug if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="auto-generated-if-blank" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="category">Category</label>
+          <select id="category" name="category"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            <option value="">— Select —</option>
+            {% for cat in ['Quant Finance', 'Machine Learning', 'Data Engineering', 'Web Development', 'Automation', 'Research', 'Other'] %}
+              <option value="{{ cat | lower | replace(' ', '_') }}" {{ 'selected' if project and project.category == cat | lower | replace(' ', '_') }}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="source">Source</label>
+          <select id="source" name="source" x-model="source"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            <option value="">— Select —</option>
+            <option value="personal" {{ 'selected' if project and project.source == 'personal' }}>Personal</option>
+            <option value="github"   {{ 'selected' if project and project.source == 'github' }}>GitHub</option>
+            <option value="upwork"   {{ 'selected' if project and project.source == 'upwork' }}>Upwork</option>
+            <option value="client"   {{ 'selected' if project and project.source == 'client' }}>Client</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="short_description">Short Description</label>
+        <input type="text" id="short_description" name="short_description"
+               value="{{ project.short_description if project else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+               placeholder="One-line summary" maxlength="200" />
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="tags">Tags <span class="text-gray-500 font-mono text-xs">(comma-separated)</span></label>
+        <input type="text" id="tags" name="tags"
+               value="{{ project.tags if project else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="python, pandas, quant" />
+      </div>
+    </div>
+
+    <!-- ===== SECTION: Content ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Content</h3>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="description">Full Description</label>
+        <textarea id="description" name="description" rows="8"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y font-mono"
+                  placeholder="Detailed project description (Markdown supported)">{{ project.description if project else '' }}</textarea>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="tech_stack">Tech Stack <span class="text-gray-500 font-mono text-xs">(comma-separated)</span></label>
+        <input type="text" id="tech_stack" name="tech_stack"
+               value="{{ project.tech_stack if project else '' }}"
+               class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+               placeholder="Python, FastAPI, PostgreSQL, Docker" />
+      </div>
+    </div>
+
+    <!-- ===== SECTION: Links ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Links</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="github_url">GitHub URL</label>
+          <input type="url" id="github_url" name="github_url"
+                 value="{{ project.github_url if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="https://github.com/..." />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="live_url">Live URL</label>
+          <input type="url" id="live_url" name="live_url"
+                 value="{{ project.live_url if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="https://..." />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="notebook_url">Notebook / Report URL</label>
+          <input type="url" id="notebook_url" name="notebook_url"
+                 value="{{ project.notebook_url if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="https://..." />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="case_study_url">Case Study URL</label>
+          <input type="url" id="case_study_url" name="case_study_url"
+                 value="{{ project.case_study_url if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="https://..." />
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECTION: Display ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Display Settings</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="sort_order">Sort Order</label>
+          <input type="number" id="sort_order" name="sort_order" min="0"
+                 value="{{ project.sort_order if project else 0 }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono" />
+        </div>
+        <div class="flex items-center gap-3 pt-7">
+          <input type="checkbox" id="is_featured" name="is_featured" value="1"
+                 {{ 'checked' if project and project.is_featured }}
+                 class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+          <label for="is_featured" class="text-sm text-gray-300">Featured</label>
+        </div>
+        <div class="flex items-center gap-3 pt-7">
+          <input type="checkbox" id="is_visible" name="is_visible" value="1"
+                 {{ 'checked' if not project or project.is_visible }}
+                 class="w-4 h-4 rounded bg-bg-700 border-bg-600 text-gold-500 focus:ring-gold-500/30" />
+          <label for="is_visible" class="text-sm text-gray-300">Visible on site</label>
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5">Project Image</label>
+        <div class="flex flex-col sm:flex-row gap-4 items-start">
+          <div class="w-32 h-24 rounded-lg bg-bg-700 border border-bg-600 overflow-hidden flex items-center justify-center flex-shrink-0">
+            <template x-if="imagePreview">
+              <img :src="imagePreview" class="w-full h-full object-cover" />
+            </template>
+            <template x-if="!imagePreview">
+              <i data-lucide="image" class="w-8 h-8 text-gray-600"></i>
+            </template>
+          </div>
+          <div class="flex-1">
+            <input type="file" id="image" name="image" accept="image/*"
+                   @change="handleImageUpload($event)"
+                   class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 file:bg-bg-600 file:text-gray-300 file:border-0 file:rounded file:px-3 file:py-1 file:text-xs file:mr-3 file:cursor-pointer" />
+            <p class="text-gray-600 text-xs font-mono mt-1.5">PNG, JPG, WebP · max 5MB</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECTION: Upwork Metadata (conditional) ===== -->
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4" x-show="source === 'upwork'" x-transition>
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Upwork Metadata</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="upwork_contract_id">Contract ID</label>
+          <input type="text" id="upwork_contract_id" name="upwork_contract_id"
+                 value="{{ project.upwork_contract_id if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="Contract ID" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="upwork_client_name">Client Name</label>
+          <input type="text" id="upwork_client_name" name="upwork_client_name"
+                 value="{{ project.upwork_client_name if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30"
+                 placeholder="Client name" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="upwork_rating">Client Rating</label>
+          <input type="number" id="upwork_rating" name="upwork_rating" min="0" max="5" step="0.1"
+                 value="{{ project.upwork_rating if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="4.9" />
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="upwork_job_url">Job URL</label>
+          <input type="url" id="upwork_job_url" name="upwork_job_url"
+                 value="{{ project.upwork_job_url if project else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="https://upwork.com/..." />
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ACTIONS ===== -->
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if project else 'Create Project' }}
+        </button>
+        <a href="/admin/projects/"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if project %}
+        <form method="POST" action="/admin/projects/{{ project.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              onsubmit="return confirm('Permanently delete this project?')">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Clients & Projects{% endblock %}
+{% block topbar_title %}Clients & Projects{% endblock %}
+
+{% block content %}
+{% set total_projects = pm_projects | length %}
+{% set active_projects = pm_projects | selectattr('status', 'equalto', 'active') | list %}
+{% set completed_projects = pm_projects | selectattr('status', 'equalto', 'completed') | list %}
+{% set outstanding_total = pm_projects | sum(attribute='balance') %}
+<div
+  class="space-y-6"
+  x-data="{
+    search: '',
+    statusFilter: '',
+    matchesClient(searchText, projectText) {
+      if (!this.search.trim()) return true;
+      return `${searchText} ${projectText}`.includes(this.search.trim().toLowerCase());
+    },
+    matchesStatus(status) {
+      return !this.statusFilter || status === this.statusFilter;
+    }
+  }"
+>
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Clients & Projects</h2>
+      <p class="text-gray-500 text-sm mt-1">Track client relationships, project health, budgets, and what is still outstanding.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{{ url_for('crm_pm.export_section', section='clients', fmt='csv') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="download" class="w-4 h-4"></i> CSV
+      </a>
+      <a href="{{ url_for('crm_pm.export_section', section='clients', fmt='xlsx') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="sheet" class="w-4 h-4"></i> XLSX
+      </a>
+      <a href="/admin/pm/projects/new"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="folder-plus" class="w-4 h-4"></i> New Project
+      </a>
+      <a href="/admin/pm/clients/new"
+         class="inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="user-plus" class="w-4 h-4"></i> New Client
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Clients</p>
+      <p class="text-3xl font-heading font-bold text-white">{{ clients | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Active Projects</p>
+      <p class="text-3xl font-heading font-bold text-blue-400">{{ active_projects | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Completed</p>
+      <p class="text-3xl font-heading font-bold text-emerald-400">{{ completed_projects | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Outstanding Balance</p>
+      <p class="text-3xl font-heading font-bold {{ 'text-red-400' if outstanding_total > 0 else 'text-gray-500' }}">
+        ${{ '{:,.0f}'.format(outstanding_total) }}
+      </p>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-4 flex flex-wrap items-center gap-3">
+    <div class="relative flex-1 min-w-[220px]">
+      <i data-lucide="search" class="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      <input type="text" x-model="search" placeholder="Search by client or project name..."
+             class="w-full bg-bg-700 border border-bg-600 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500">
+    </div>
+    <select x-model="statusFilter"
+            class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-purple-500">
+      <option value="">All Statuses</option>
+      <option value="active">Ongoing</option>
+      <option value="completed">Completed</option>
+      <option value="on_hold">On Hold</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+    <div class="text-xs font-mono text-gray-500">
+      {{ total_projects }} project{{ 's' if total_projects != 1 else '' }} total
+    </div>
+  </div>
+
+  {% if clients %}
+    {% for client in clients %}
+      {% set client_projects = pm_projects | selectattr('client_id', 'equalto', client.id) | list %}
+      {% set client_paid = client_projects | sum(attribute='paid') %}
+      {% set client_balance = client_projects | sum(attribute='balance') %}
+      {% set client_names = (client_projects | map(attribute='name') | list) %}
+      <section
+        class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden"
+        x-show="matchesClient({{ client.name | lower | tojson }}, {{ client_names | join(' ') | lower | tojson }})"
+        x-transition
+      >
+        <div class="px-5 py-4 border-b border-bg-700 bg-bg-800 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-full bg-purple-900/40 border border-purple-700/40 flex items-center justify-center flex-shrink-0">
+              <span class="text-purple-300 font-heading font-bold text-sm">{{ client.name[0] | upper }}</span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-heading font-semibold text-white text-base">{{ client.name }}</h3>
+                <span class="text-gray-500 font-mono text-xs">Client #{{ '%03d' % client.id }}</span>
+              </div>
+              <p class="text-gray-500 font-mono text-xs mt-1">
+                {% if client.email %}{{ client.email }}{% endif %}
+                {% if client.phone %}{% if client.email %} · {% endif %}{{ client.phone }}{% endif %}
+                {% if not client.email and not client.phone %}No contact info on file{% endif %}
+              </p>
+              {% if client.notes %}
+                <p class="text-gray-400 text-sm mt-2 max-w-3xl">{{ client.notes }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 lg:justify-end">
+            <div class="px-3 py-2 rounded-lg bg-bg-900/50 border border-bg-700 min-w-[110px]">
+              <p class="text-gray-500 font-mono text-[11px] uppercase tracking-widest">Projects</p>
+              <p class="text-white font-heading font-semibold text-lg">{{ client_projects | length }}</p>
+            </div>
+            <div class="px-3 py-2 rounded-lg bg-bg-900/50 border border-bg-700 min-w-[120px]">
+              <p class="text-gray-500 font-mono text-[11px] uppercase tracking-widest">Paid</p>
+              <p class="text-green-400 font-mono font-semibold">${{ '{:,.0f}'.format(client_paid) }}</p>
+            </div>
+            <div class="px-3 py-2 rounded-lg bg-bg-900/50 border border-bg-700 min-w-[130px]">
+              <p class="text-gray-500 font-mono text-[11px] uppercase tracking-widest">Balance</p>
+              <p class="font-mono font-semibold {{ 'text-red-400' if client_balance > 0 else 'text-gray-500' }}">
+                ${{ '{:,.0f}'.format(client_balance) }}
+              </p>
+            </div>
+            <a href="/admin/pm/clients/{{ client.id }}/edit"
+               class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-bg-700 hover:bg-bg-600 text-white text-sm font-heading font-semibold border border-bg-600 transition-colors">
+              <i data-lucide="pencil" class="w-4 h-4"></i> Edit Client
+            </a>
+          </div>
+        </div>
+
+        {% if client_projects %}
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-bg-900/40 border-b border-bg-700/50">
+                  <th class="text-left px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide">Project</th>
+                  <th class="text-left px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+                  <th class="text-right px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Budget</th>
+                  <th class="text-right px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Amount Paid</th>
+                  <th class="text-right px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Balance</th>
+                  <th class="text-left px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide hidden xl:table-cell">Notes</th>
+                  <th class="text-right px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for proj in client_projects %}
+                  <tr class="border-b border-bg-700/30 hover:bg-bg-700/20 transition-colors"
+                      x-show="matchesStatus({{ proj.status | tojson }}) && matchesClient({{ client.name | lower | tojson }}, {{ proj.name | lower | tojson }})">
+                    <td class="px-5 py-3">
+                      <a href="/admin/pm/projects/{{ proj.id }}" class="text-white hover:text-purple-300 font-semibold transition-colors">
+                        {{ proj.name }}
+                      </a>
+                      <div class="text-gray-500 font-mono text-xs mt-1 md:hidden">
+                        {% if proj.budget %}${{ '{:,.0f}'.format(proj.budget) }}{% else %}No budget{% endif %}
+                        ·
+                        ${{ '{:,.0f}'.format(proj.balance) }} balance
+                      </div>
+                    </td>
+                    <td class="px-5 py-3">
+                      {% set s = proj.status %}
+                      {% if s == 'active' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Ongoing</span>
+                      {% elif s == 'completed' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+                      {% elif s == 'on_hold' %}<span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">On Hold</span>
+                      {% elif s == 'cancelled' %}<span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Cancelled</span>
+                      {% else %}<span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">{{ s | title }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-right text-gray-300 font-mono text-xs hidden md:table-cell">
+                      {{ '$' ~ '{:,.0f}'.format(proj.budget) if proj.budget else '—' }}
+                    </td>
+                    <td class="px-5 py-3 text-right text-green-400 font-mono text-xs hidden lg:table-cell">
+                      ${{ '{:,.0f}'.format(proj.paid) }}
+                    </td>
+                    <td class="px-5 py-3 text-right font-mono text-xs hidden lg:table-cell {{ 'text-red-400' if proj.balance > 0 else 'text-gray-500' }}">
+                      ${{ '{:,.0f}'.format(proj.balance) }}
+                    </td>
+                    <td class="px-5 py-3 text-gray-400 text-xs max-w-xs hidden xl:table-cell">
+                      <span class="line-clamp-2">{{ proj.notes if proj.notes else '—' }}</span>
+                    </td>
+                    <td class="px-5 py-3 text-right">
+                      <div class="flex items-center justify-end gap-2">
+                        <a href="/admin/pm/projects/{{ proj.id }}" class="text-gray-400 hover:text-purple-400 transition-colors" title="Open project">
+                          <i data-lucide="eye" class="w-4 h-4"></i>
+                        </a>
+                        <a href="/admin/pm/projects/{{ proj.id }}/edit" class="text-gray-400 hover:text-gold-400 transition-colors" title="Edit project">
+                          <i data-lucide="pencil" class="w-4 h-4"></i>
+                        </a>
+                        <form method="POST" action="/admin/pm/projects/{{ proj.id }}/delete"
+                              onsubmit="return confirm('Delete this project?')" class="inline">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors" title="Delete project">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="px-5 py-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-gray-500 font-mono text-sm">No projects for this client yet.</p>
+            <a href="/admin/pm/projects/new?client_id={{ client.id }}"
+               class="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300 text-sm font-heading font-semibold transition-colors">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add project
+            </a>
+          </div>
+        {% endif %}
+      </section>
+    {% endfor %}
+
+    {% set orphan_projects = pm_projects | selectattr('client_id', 'none') | list %}
+    {% if orphan_projects %}
+      <section class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden" x-show="matchesClient('unassigned', '')">
+        <div class="px-5 py-4 border-b border-bg-700 flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-semibold text-white text-sm">Unassigned Projects</h3>
+            <p class="text-gray-500 font-mono text-xs mt-1">Projects that need to be linked to a client record.</p>
+          </div>
+          <span class="text-gray-500 font-mono text-xs">{{ orphan_projects | length }} total</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-bg-900/40 border-b border-bg-700/50">
+                <th class="text-left px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide">Project</th>
+                <th class="text-left px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+                <th class="text-right px-5 py-2.5 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for proj in orphan_projects %}
+                <tr class="border-b border-bg-700/30 hover:bg-bg-700/20 transition-colors"
+                    x-show="matchesStatus({{ proj.status | tojson }}) && matchesClient('unassigned', {{ proj.name | lower | tojson }})">
+                  <td class="px-5 py-3">
+                    <a href="/admin/pm/projects/{{ proj.id }}" class="text-white hover:text-purple-300 font-semibold">{{ proj.name }}</a>
+                  </td>
+                  <td class="px-5 py-3">
+                    <span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">{{ proj.status | replace('_', ' ') | title }}</span>
+                  </td>
+                  <td class="px-5 py-3 text-right">
+                    <a href="/admin/pm/projects/{{ proj.id }}/edit" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% endif %}
+  {% else %}
+    <div class="bg-bg-800 border border-bg-700 rounded-xl px-6 py-16 text-center">
+      <i data-lucide="users" class="w-12 h-12 text-gray-600 mx-auto mb-3"></i>
+      <p class="text-white font-heading font-semibold text-lg mb-1">No clients yet</p>
+      <p class="text-gray-500 text-sm mb-4">Add your first client to start organizing projects and payments.</p>
+      <a href="/admin/pm/clients/new"
+         class="inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="user-plus" class="w-4 h-4"></i> Add Client
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

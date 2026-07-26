@@ -1,0 +1,111 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if task else 'New' }} Task{% endblock %}
+{% block topbar_title %}{{ 'Edit' if task else 'New' }} Task{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+  <div class="flex items-center gap-4">
+    <a href="{{ url_for('crm_pm.project_detail', id=project.id) if project else '/admin/pm/tasks' }}" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <h2 class="font-heading font-semibold text-2xl text-white">{{ 'Edit' if task else 'New' }} Task</h2>
+  </div>
+
+  <form method="POST"
+        action="{{ url_for('crm_pm.edit_task', id=task.id) if task else url_for('crm_pm.new_task') }}"
+        class="space-y-5">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="project_id">Project <span class="text-red-400">*</span></label>
+        <select id="project_id" name="project_id" required
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+          <option value="">— Select Project —</option>
+          {% for p in projects %}
+            {% set selected_project_id = task.project_id if task else (project.id if project else None) %}
+            <option value="{{ p.id }}" {{ 'selected' if selected_project_id == p.id }}>
+              {{ p.client.name if p.client else 'No client' }} · {{ p.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="description">Task Description <span class="text-red-400">*</span></label>
+        <textarea id="description" name="description" rows="4" required
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="Describe the task...">{{ task.description if task else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="status">Status</label>
+          <select id="status" name="status"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            {% for val, label in [('not_started','Not Started'),('in_progress','Ongoing'),('completed','Completed'),('blocked','Blocked')] %}
+              <option value="{{ val }}" {{ 'selected' if task and task.status == val else ('selected' if val == 'not_started' and not task) }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="priority">Priority</label>
+          <select id="priority" name="priority"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30">
+            {% for val in ['1/5', '2/5', '3/5', '4/5', '5/5'] %}
+              <option value="{{ val }}" {{ 'selected' if task and task.priority == val else ('selected' if val == '3/5' and not task) }}>{{ val }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="due_date">Due Date</label>
+          <input type="date" id="due_date" name="due_date"
+                 value="{{ task.due_date.strftime('%Y-%m-%d') if task and task.due_date else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono">
+        </div>
+        <div>
+          <label class="form-label block text-sm text-gray-300 mb-1.5" for="estimated_hours">Est. Duration (hrs)</label>
+          <input type="number" id="estimated_hours" name="estimated_hours" min="0" step="0.25"
+                 value="{{ task.estimated_hours if task else '' }}"
+                 class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 font-mono"
+                 placeholder="0.0">
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label block text-sm text-gray-300 mb-1.5" for="notes">PM Notes</label>
+        <textarea id="notes" name="notes" rows="4"
+                  class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                  placeholder="Internal notes for this task...">{{ task.notes if task else '' }}</textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex gap-3">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-6 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          {{ 'Save Changes' if task else 'Create Task' }}
+        </button>
+        <a href="{{ url_for('crm_pm.project_detail', id=(task.project_id if task else project.id)) if (task or project) else '/admin/pm/tasks' }}"
+           class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+          Cancel
+        </a>
+      </div>
+      {% if task %}
+        <form method="POST" action="/admin/pm/tasks/{{ task.id }}/delete"
+              onsubmit="return confirm('Delete this task?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

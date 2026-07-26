@@ -1,0 +1,114 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Payment Pending  -  Lago Brian{% endblock %}
+{% block meta_description %}Your project brief has been received. Awaiting Wise payment confirmation.{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-bg-950 flex items-center justify-center px-4 py-24">
+  <div class="max-w-lg w-full text-center">
+
+    <!-- Pending icon -->
+    <div class="relative mx-auto mb-8 w-20 h-20">
+      <div class="absolute inset-0 rounded-full bg-yellow-500/10 animate-ping"></div>
+      <div class="relative w-20 h-20 rounded-full bg-yellow-900/40 border border-yellow-700/50 flex items-center justify-center">
+        <i data-lucide="clock" class="w-9 h-9 text-yellow-400"></i>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <p class="text-xs font-mono text-yellow-500 uppercase tracking-widest mb-3">Awaiting Payment</p>
+    <h1 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-4">
+      Brief Received  -  Payment Pending
+    </h1>
+    <p class="text-base font-body text-gray-400 leading-relaxed mb-3">
+      Your project brief has been received. Payment is awaiting confirmation.
+    </p>
+
+    <!-- M-Pesa payment box -->
+    {% if hr.payment_method == 'mpesa' %}
+    <div class="text-left mb-6 p-5 rounded-xl bg-green-900/20 border border-green-700/40">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="smartphone" class="w-4 h-4 text-green-400"></i>
+        <span class="text-sm font-heading font-semibold text-green-300">M-Pesa Payment Details</span>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="bg-green-900/30 border border-green-700/30 rounded-lg p-3">
+          <p class="text-xs font-mono text-green-400 mb-1">Coop Bank Till</p>
+          <p class="font-mono text-white font-bold text-lg">107798</p>
+          <p class="text-xs text-green-400/70">James Brian Lago</p>
+        </div>
+        <div class="bg-green-900/30 border border-green-700/30 rounded-lg p-3">
+          <p class="text-xs font-mono text-green-400 mb-1">M-Pesa Number</p>
+          <p class="font-mono text-white font-bold text-lg">+254 799 841 016</p>
+          <p class="text-xs text-green-400/70">James Brian Lago</p>
+        </div>
+      </div>
+      {% if hr.mpesa_confirmation %}
+        <p class="text-xs font-mono text-green-400">✓ Confirmation message received  -  awaiting manual verification.</p>
+      {% else %}
+        <p class="text-xs font-mono text-green-400/70">Use <strong>"{{ hr.project_title }}"</strong> as your payment reference.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Wise payment box -->
+    {% if hr.payment_method == 'wise' %}
+    <div class="text-left mb-6 p-5 rounded-xl bg-blue-900/20 border border-blue-700/40">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="globe" class="w-4 h-4 text-blue-400"></i>
+        <span class="text-sm font-heading font-semibold text-blue-300">Pay via Wise</span>
+      </div>
+      <a href="https://wise.com/pay/me/jamesl3050" target="_blank" rel="noopener noreferrer"
+         class="block w-full text-center px-5 py-3 rounded-lg bg-blue-700/30 hover:bg-blue-700/50 border border-blue-600/40 text-blue-200 font-mono text-sm transition-colors mb-3">
+        wise.com/pay/me/jamesl3050 →
+      </a>
+      <p class="text-xs font-mono text-blue-400/70">
+        Use your project title as the payment reference:
+        <span class="text-blue-300 block mt-1">"{{ hr.project_title }}"</span>
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- What's next -->
+    <div class="text-left mb-8 p-5 rounded-xl bg-bg-800 border border-bg-700">
+      <h2 class="font-heading font-semibold text-sm text-gray-300 mb-4">What happens next</h2>
+      <div class="flex flex-col gap-3">
+        {% if hr.payment_method == 'mpesa' %}
+          {% set steps = [
+            ('01', 'Send M-Pesa to Till 107798 or +254 799 841 016'),
+            ('02', 'I verify your confirmation message and mark payment received'),
+            ('03', 'I review your brief and send a detailed proposal'),
+            ('04', 'Work begins once scope is agreed'),
+          ] %}
+        {% else %}
+          {% set steps = [
+            ('01', 'Send payment via Wise using the link above'),
+            ('02', 'I confirm receipt and review your project brief'),
+            ('03', 'I send a detailed proposal with timeline and scope'),
+            ('04', 'Work begins once scope is agreed'),
+          ] %}
+        {% endif %}
+        {% for num, step in steps %}
+          <div class="flex items-start gap-3">
+            <span class="font-mono text-xs text-yellow-600 shrink-0 mt-0.5">{{ num }}</span>
+            <span class="text-sm font-body text-gray-400">{{ step }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="{{ url_for('public.home') }}"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all shadow-lg shadow-gold-900/30">
+        Back to Home <i data-lucide="home" class="w-4 h-4"></i>
+      </a>
+      <a href="mailto:lagobrian@outlook.com?subject=Payment sent  -  {{ hr.project_title }}"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+        Email me directly
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

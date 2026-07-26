@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio | Lago Brian{% endblock %}
+{% block meta_description %}Lago Brian's portfolio — quantitative finance, algorithmic trading, machine learning, and written research across 50+ projects and engagements.{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-12 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">My Work</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-4">Portfolio</h1>
+    <p class="text-base sm:text-lg font-body text-gray-400 max-w-2xl leading-relaxed">
+      Code, research, and writing. Quantitative finance, algorithmic trading, machine learning, and
+      published work across two Substacks and 35+ papers. Browse by category — every card is clickable.
+    </p>
+  </div>
+</div>
+
+<div class="min-h-screen bg-bg-900 py-12"
+     x-data="{
+       activeCategory: 'all',
+       setCategory(cat) { this.activeCategory = cat; },
+       showCategory(cat) { return this.activeCategory === 'all' || this.activeCategory === cat; },
+       viewerFile: null,
+       openViewer(f) { this.viewerFile = f; document.body.style.overflow = 'hidden'; },
+       closeViewer() { this.viewerFile = null; document.body.style.overflow = ''; },
+       viewerSrc(f) {
+         return 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(window.location.origin + '/static/samples/papers/' + f);
+       }
+     }">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="flex flex-wrap items-center gap-2 mb-10 pb-6 border-b border-bg-700">
+      <button @click="setCategory('all')"
+              :class="activeCategory === 'all' ? 'bg-gold-500 text-black border-gold-500' : 'bg-bg-800 text-gray-400 border-bg-600 hover:border-gold-700 hover:text-gold-400'"
+              class="px-4 py-2 rounded-lg border text-xs font-mono font-medium transition-all duration-200">
+        All Categories
+        <span class="ml-1.5 opacity-60">({{ projects|length if projects else 0 }})</span>
+      </button>
+      {% for category in categories %}
+        <button @click="setCategory('{{ category.key }}')"
+                :class="activeCategory === '{{ category.key }}' ? 'bg-gold-500 text-black border-gold-500' : 'bg-bg-800 text-gray-400 border-bg-600 hover:border-gold-700 hover:text-gold-400'"
+                class="px-4 py-2 rounded-lg border text-xs font-mono font-medium transition-all duration-200">
+          {{ category.label }}
+          <span class="ml-1.5 opacity-60">({{ category.count }})</span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <div class="space-y-10">
+      {% for category in categories %}
+        <section x-show="showCategory('{{ category.key }}')" x-transition class="space-y-5">
+          <div class="rounded-2xl bg-bg-800 border border-bg-700 p-6">
+            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Category</p>
+                <h2 class="font-heading font-bold text-2xl sm:text-3xl text-gray-50">{{ category.label }}</h2>
+              </div>
+              <div class="text-sm font-mono text-gray-500">{{ category.count }} project{{ 's' if category.count != 1 }}</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for project in projects if project.category == category.key %}
+              {% if project.category == 'ghostwriting' and project.substack_url %}
+                <button type="button"
+                        @click="openViewer('{{ project.substack_url }}')"
+                        class="text-left group flex flex-col rounded-xl bg-bg-800 border border-bg-700 hover:border-rose-700 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30">
+                  <div class="h-44 bg-gradient-to-br from-rose-900/60 to-bg-800 flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-10 h-10 text-rose-400/50"></i>
+                  </div>
+                  <div class="p-5 flex flex-col gap-3 flex-1">
+                    <span class="px-2.5 py-1 rounded-full bg-bg-700 text-xs font-mono text-rose-300 border border-rose-900/40 w-fit">{{ category.label }}</span>
+                    <h3 class="font-heading font-semibold text-gray-100 group-hover:text-rose-300 transition-colors">{{ project.title }}</h3>
+                    <p class="text-sm font-body text-gray-400 line-clamp-3 flex-1">{{ project.short_description or '' }}</p>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-mono text-rose-400 group-hover:text-rose-300 transition-colors">
+                      Open Sample <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </span>
+                  </div>
+                </button>
+              {% else %}
+                {% set original_category = project.category %}
+                {% set project = project %}
+                {% include 'public/partials/project_card.html' %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </section>
+      {% else %}
+        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+          <i data-lucide="folder-open" class="w-12 h-12 text-gray-600 mb-4"></i>
+          <h3 class="font-heading font-semibold text-gray-400 text-lg mb-2">No projects yet</h3>
+          <p class="text-sm font-body text-gray-600">Projects are being added. Check back soon.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div x-show="viewerFile"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       class="fixed inset-0 z-50 flex flex-col bg-black/80 backdrop-blur-sm"
+       @keydown.escape.window="closeViewer()"
+       style="display:none;">
+    <div class="flex items-center justify-between px-4 py-3 bg-bg-950 border-b border-bg-700 shrink-0">
+      <div class="flex items-center gap-2">
+        <i data-lucide="file-text" class="w-4 h-4 text-rose-400"></i>
+        <span class="text-sm font-mono text-gray-300">Academic Paper | Read Only</span>
+      </div>
+      <button @click="closeViewer()"
+              class="p-1.5 rounded-lg bg-bg-800 hover:bg-bg-700 text-gray-400 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <iframe x-bind:src="viewerFile ? viewerSrc(viewerFile) : ''"
+            class="flex-1 w-full border-0"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            referrerpolicy="no-referrer"></iframe>
+  </div>
+</div>
+{% endblock %}

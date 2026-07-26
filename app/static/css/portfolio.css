@@ -1,0 +1,225 @@
+/* ── Night Owl Dark (default) ─────────────────────────────────────────── */
+:root {
+  --bg-950:  #010e1a;
+  --bg-900:  #011627;
+  --bg-800:  #0b2942;
+  --bg-750:  #12324e;
+  --bg-700:  #1d3b53;
+  --bg-600:  #2a5173;
+
+  --gold-600: #D97706;
+  --gold-500: #F59E0B;
+  --gold-400: #FCD34D;
+  --gold-200: #FDE68A;
+  --gold-900: #78350F;
+
+  /* Night Owl dark foreground */
+  --text-100: #d6deeb;
+  --text-300: #abc2d5;
+  --text-500: #7b9bb5;
+  --text-700: #637777;
+
+  /* Night Owl dark code */
+  --code-bg:      #011627;
+  --code-text:    #82aaff;
+  --code-green:   #addb67;
+  --code-yellow:  #ffeb95;
+  --code-comment: #637777;
+
+  --cat-finance:  #F59E0B;
+  --cat-ml:       #82aaff;
+  --cat-quant:    #addb67;
+  --cat-stats:    #c792ea;
+  --cat-research: #f78c6c;
+  --cat-personal: #7fdbca;
+
+  --success:   #addb67;
+  --warning:   #F59E0B;
+  --danger:    #ff5874;
+  --info:      #82aaff;
+}
+
+/* ── Night Owl Light overrides ────────────────────────────────────────── */
+html.light {
+  --bg-950:  #e2e5f0;
+  --bg-900:  #eaecf5;
+  --bg-800:  #fbfbfb;
+  --bg-750:  #f5f5fa;
+  --bg-700:  #dde0ed;
+  --bg-600:  #c4c8db;
+  --text-100: #403f53;
+  --text-300: #4e4c68;
+  --text-500: #676580;
+  --text-700: #8f8da8;
+  /* Night Owl light code */
+  --code-bg:      #fbfbfb;
+  --code-text:    #4876d6;
+  --code-green:   #0c9a6c;
+  --code-yellow:  #c09000;
+  --code-comment: #989fb1;
+}
+
+html.light body {
+  background-color: #eaecf5;
+  color: #403f53;
+}
+
+/* Background overrides */
+html.light .bg-bg-950 { background-color: #e2e5f0 !important; }
+html.light .bg-bg-900 { background-color: #eaecf5 !important; }
+html.light .bg-bg-800 { background-color: #fbfbfb !important; }
+html.light .bg-bg-700 { background-color: #dde0ed !important; }
+html.light .bg-bg-600 { background-color: #c4c8db !important; }
+
+/* Border overrides */
+html.light .border-bg-700 { border-color: #cdd0e0 !important; }
+html.light .border-bg-600 { border-color: #b5b9cc !important; }
+html.light .divide-bg-700 > * + * { border-color: #cdd0e0 !important; }
+html.light .hover\:border-bg-700:hover { border-color: #a8abc0 !important; }
+html.light .hover\:border-bg-500:hover { border-color: #9599b0 !important; }
+
+/* Text overrides */
+html.light .text-white    { color: #1a1933 !important; }
+html.light .text-gray-50  { color: #1a1933 !important; }
+html.light .text-gray-100 { color: #27253f !important; }
+html.light .text-gray-200 { color: #35335a !important; }
+html.light .text-gray-300 { color: #403f53 !important; }
+html.light .text-gray-400 { color: #5a5870 !important; }
+html.light .text-gray-500 { color: #737189 !important; }
+html.light .text-gray-600 { color: #8d8ba0 !important; }
+
+/* Gold stays gold in light mode — it reads fine on light bg */
+/* Black text on gold buttons is intentional — keep as-is */
+
+/* Navbar transparent state: ensure text is readable */
+html.light nav .text-gray-100 { color: #27253f !important; }
+html.light nav .text-gray-400 { color: #5a5870 !important; }
+
+/* Cards & sections that use fill-gold-400 (star ratings) — keep gold */
+/* Borders */
+html.light .border-bg-800 { border-color: #d0d3e2 !important; }
+
+/* Hover bg overrides so hover states don't vanish */
+html.light .hover\:bg-bg-700:hover { background-color: #c8ccdd !important; }
+html.light .hover\:bg-bg-800:hover { background-color: #f0f0f8 !important; }
+
+/* Navbar — scrolled state backdrop */
+html.light nav .bg-bg-900\/95 { background-color: rgba(234, 236, 245, 0.95) !important; }
+
+/* Inputs & textareas */
+html.light input[class*="bg-bg-700"],
+html.light textarea[class*="bg-bg-700"],
+html.light select[class*="bg-bg-700"] {
+  background-color: #f5f5fb !important;
+  color: #403f53 !important;
+  border-color: #c4c8db !important;
+}
+html.light ::placeholder { color: #9291a5 !important; }
+
+/* Scrollbar */
+html.light ::-webkit-scrollbar-track { background: #eaecf5; }
+html.light ::-webkit-scrollbar-thumb { background: #c4c8db; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #a8abc0; }
+
+/* Code blocks stay dark — better readability */
+html.light .code-block { background: #1d3b53; border-color: #2a5173; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-100);
+  background-color: var(--bg-900);
+}
+
+.font-heading { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+.font-mono { font-family: 'IBM Plex Mono', monospace; }
+
+/* Grain texture overlay */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Terminal typing animation */
+@keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+.cursor-blink { animation: blink 1s step-end infinite; }
+
+/* Code block styling */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--bg-700);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+.code-block .keyword { color: var(--code-yellow); }
+.code-block .string { color: var(--code-green); }
+.code-block .comment { color: var(--code-comment); }
+.code-block .var { color: var(--code-text); }
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-900); }
+::-webkit-scrollbar-thumb { background: var(--bg-600); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg-700); }
+
+/* Form styling for CRM */
+.form-input {
+  background: var(--bg-800);
+  border: 1px solid var(--bg-700);
+  color: var(--text-100);
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-300);
+  margin-bottom: 0.375rem;
+}
+
+/* Flash messages */
+.flash-success { background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; color: #10B981; }
+.flash-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid #EF4444; color: #EF4444; }
+.flash-warning { background: rgba(245, 158, 11, 0.1); border: 1px solid #F59E0B; color: #F59E0B; }
+.flash-info { background: rgba(96, 165, 250, 0.1); border: 1px solid #60A5FA; color: #60A5FA; }
+
+/* Markdown rendered content */
+.prose h1 { font-size: 1.75rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
+.prose h2 { font-size: 1.5rem; font-weight: 600; margin: 1.25rem 0 0.625rem; }
+.prose h3 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+.prose p { margin: 0.75rem 0; line-height: 1.7; }
+.prose ul, .prose ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.prose li { margin: 0.25rem 0; }
+.prose code { background: var(--code-bg); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875em; }
+.prose pre { background: var(--code-bg); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; }
+.prose pre code { background: none; padding: 0; }
+.prose blockquote { border-left: 3px solid var(--gold-500); padding-left: 1rem; color: var(--text-300); font-style: italic; }
+.prose a { color: var(--gold-500); text-decoration: underline; }
+.prose img { max-width: 100%; border-radius: 0.5rem; margin: 1rem 0; }

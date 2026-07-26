@@ -1,0 +1,419 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Hire Request: {{ req.client_name }}{% endblock %}
+{% block topbar_title %}Hire Request Detail{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <a href="/admin/hire-requests/" class="text-gray-500 hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    </a>
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">{{ req.client_name }}</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">
+        Submitted {{ req.created_at.strftime('%B %d, %Y at %H:%M') if req.created_at else '—' }}
+      </p>
+    </div>
+    <div class="ml-auto">
+      {% set s = req.status | default('pending') %}
+      {% if s == 'pending' %}<span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-3 py-1 rounded-full">Pending</span>
+      {% elif s == 'reviewing' %}<span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-3 py-1 rounded-full">Reviewing</span>
+      {% elif s == 'accepted' %}<span class="bg-green-900/30 text-green-400 border border-green-700/30 text-xs font-mono px-3 py-1 rounded-full">Accepted</span>
+      {% elif s == 'in_progress' %}<span class="bg-purple-900/30 text-purple-400 border border-purple-700/30 text-xs font-mono px-3 py-1 rounded-full">In Progress</span>
+      {% elif s == 'completed' %}<span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-3 py-1 rounded-full">Completed</span>
+      {% elif s == 'declined' %}<span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-3 py-1 rounded-full">Declined</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Client Info -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Client Information</h3>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div><dt class="text-gray-500 font-mono text-xs mb-0.5">Name</dt><dd class="text-white">{{ req.client_name }}</dd></div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Email</dt>
+        <dd><a href="mailto:{{ req.client_email }}" class="text-gold-400 hover:text-gold-300 font-mono transition-colors">{{ req.client_email }}</a></dd>
+      </div>
+      {% if req.client_phone %}
+        <div><dt class="text-gray-500 font-mono text-xs mb-0.5">Phone</dt><dd class="text-white font-mono">{{ req.client_phone }}</dd></div>
+      {% endif %}
+      {% if req.client_company %}
+        <div><dt class="text-gray-500 font-mono text-xs mb-0.5">Company</dt><dd class="text-white">{{ req.client_company }}</dd></div>
+      {% endif %}
+      {% if req.client_country %}
+        <div><dt class="text-gray-500 font-mono text-xs mb-0.5">Country</dt><dd class="text-white">{{ req.client_country }}</dd></div>
+      {% endif %}
+    </dl>
+  </div>
+
+  <!-- Project Details -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Project Details</h3>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div class="sm:col-span-2">
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Project Title</dt>
+        <dd class="text-white font-medium">{{ req.project_title | default('—') }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Category</dt>
+        <dd class="text-white">{{ req.project_category | default('—') }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Timeline</dt>
+        <dd class="text-white">{{ req.timeline | default('—') }}</dd>
+      </div>
+      {% if req.description %}
+        <div class="sm:col-span-2">
+          <dt class="text-gray-500 font-mono text-xs mb-1">Description</dt>
+          <dd class="bg-bg-700 rounded-lg p-4 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{{ req.description }}</dd>
+        </div>
+      {% endif %}
+    </dl>
+  </div>
+
+  <!-- Payment Details (admin only) -->
+  <div class="bg-bg-800 border border-yellow-700/30 rounded-xl p-6">
+    <div class="flex items-center gap-2 mb-4 border-b border-bg-700 pb-3">
+      <i data-lucide="lock" class="w-4 h-4 text-yellow-400"></i>
+      <h3 class="font-heading font-semibold text-white text-sm">Payment Details</h3>
+      <span class="ml-auto bg-yellow-900/30 text-yellow-400 text-xs font-mono px-2 py-0.5 rounded">Admin Only</span>
+    </div>
+    <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Budget</dt>
+        <dd class="text-white font-mono font-semibold text-lg">{{ req.budget | default('—') }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Currency</dt>
+        <dd class="text-white font-mono">{{ req.currency | default('USD') }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Payment Method</dt>
+        <dd class="text-white">{{ req.payment_method | default('—') | upper if req.payment_method == 'mpesa' else req.payment_method | default('—') | title }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Payment Status</dt>
+        <dd>
+          {% if req.payment_status == 'awaiting_confirmation' %}
+            <span class="bg-yellow-900/30 text-yellow-400 border border-yellow-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Awaiting Confirmation</span>
+          {% elif req.payment_status == 'pending_checkout' %}
+            <span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Stripe Checkout Pending</span>
+          {% elif req.payment_status == 'confirmed' %}
+            <span class="bg-green-900/30 text-green-400 border border-green-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Confirmed</span>
+          {% elif req.payment_status == 'failed' %}
+            <span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Payment Failed</span>
+          {% else %}
+            <span class="text-gray-500 text-xs font-mono">—</span>
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+    {% if req.mpesa_confirmation %}
+      <div class="mt-4 pt-4 border-t border-bg-700">
+        <dt class="text-gray-500 font-mono text-xs mb-2">M-Pesa Confirmation Message</dt>
+        <dd class="bg-green-900/20 border border-green-700/30 rounded-lg px-4 py-3 text-sm font-mono text-green-300 whitespace-pre-wrap">{{ req.mpesa_confirmation }}</dd>
+      </div>
+    {% endif %}
+    {% if req.payment_status == 'awaiting_confirmation' %}
+      <div class="mt-4 pt-4 border-t border-bg-700">
+        <form method="POST" action="/admin/hire-requests/{{ req.id }}/confirm-payment/">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            Confirm {{ 'M-Pesa' if req.payment_method == 'mpesa' else 'Wise' }} Payment Received
+          </button>
+        </form>
+      </div>
+    {% endif %}
+    {% if req.payment_method == 'stripe' and req.stripe_checkout_session_id %}
+      <div class="mt-4 pt-4 border-t border-bg-700 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-gray-500 font-mono text-xs mb-1">Stripe Checkout Session</dt>
+          <dd class="text-white font-mono text-xs break-all">{{ req.stripe_checkout_session_id }}</dd>
+        </div>
+        {% if req.stripe_payment_intent_id %}
+          <div>
+            <dt class="text-gray-500 font-mono text-xs mb-1">Stripe Payment Intent</dt>
+            <dd class="text-white font-mono text-xs break-all">{{ req.stripe_payment_intent_id }}</dd>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- NDA Status -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">NDA & Invoice Preferences</h3>
+    <dl class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm">
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Contract Signed</dt>
+        <dd>
+          {% if req.contract_signed %}
+            <span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Yes</span>
+          {% else %}
+            <span class="text-red-400 text-xs font-mono">Missing</span>
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">NDA Signed</dt>
+        <dd>
+          {% if req.nda_signed %}
+            <span class="bg-green-900/30 text-green-400 border border-green-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Yes</span>
+          {% else %}
+            <span class="text-gray-500 text-xs font-mono">No</span>
+          {% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Invoice Email</dt>
+        <dd class="text-white font-mono text-xs">{{ req.invoice_email or req.client_email }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 font-mono text-xs mb-0.5">Email Invoices</dt>
+        <dd>
+          {% if req.invoice_opt_out %}
+            <span class="text-yellow-400 text-xs font-mono">Opted out</span>
+          {% else %}
+            <span class="text-green-400 text-xs font-mono">Yes</span>
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Invoices & Receipts -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Invoices & Receipts</h3>
+
+    {% set doc_list = req.invoices if req.invoices else [] %}
+    {% if doc_list %}
+      <ul class="space-y-2 mb-5">
+        {% for inv in doc_list %}
+          <li class="flex items-center justify-between bg-bg-700 rounded-lg px-4 py-2.5">
+            <div class="flex items-center gap-3">
+              <i data-lucide="{{ 'receipt' if inv.invoice_type == 'receipt' else 'file-text' }}" class="w-4 h-4 {{ 'text-green-400' if inv.invoice_type == 'receipt' else 'text-gold-400' }}"></i>
+              <div>
+                <span class="text-white text-sm font-mono">{{ inv.invoice_number }}</span>
+                <span class="ml-2 text-xs font-mono {{ 'text-green-400' if inv.invoice_type == 'receipt' else 'text-gold-400' }}">{{ inv.invoice_type | title }}</span>
+              </div>
+              <span class="text-gray-500 text-xs font-mono">{{ inv.created_at.strftime('%b %d, %Y') if inv.created_at else '' }}</span>
+              {% if inv.sent_at %}
+                <span class="text-gray-600 text-xs font-mono">· Emailed {{ inv.sent_at.strftime('%b %d') }}</span>
+              {% endif %}
+            </div>
+            <a href="{{ url_for('crm_hire_requests.download_invoice', id=req.id, inv_id=inv.id) }}"
+               class="text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500 text-sm font-mono mb-5">No documents generated yet.</p>
+    {% endif %}
+
+    <div class="flex flex-wrap gap-3">
+      {% set has_invoice = req.invoices | selectattr('invoice_type', 'eq', 'invoice') | list | length > 0 %}
+      {% set has_receipt = req.invoices | selectattr('invoice_type', 'eq', 'receipt') | list | length > 0 %}
+
+      {% if not has_invoice %}
+        <form method="POST" action="{{ url_for('crm_hire_requests.generate_invoice', id=req.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-gold-600 hover:bg-gold-500 text-black font-heading font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">
+            <i data-lucide="file-text" class="w-4 h-4"></i> Generate Invoice
+          </button>
+        </form>
+      {% else %}
+        <span class="inline-flex items-center gap-2 bg-bg-700 text-gray-500 font-heading text-sm px-5 py-2.5 rounded-lg border border-bg-600 cursor-not-allowed">
+          <i data-lucide="check" class="w-4 h-4 text-gold-500"></i> Invoice Generated
+        </span>
+      {% endif %}
+
+      {% if req.payment_status == 'confirmed' and not has_receipt %}
+        <form method="POST" action="{{ url_for('crm_hire_requests.generate_receipt', id=req.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">
+            <i data-lucide="receipt" class="w-4 h-4"></i> Generate Receipt
+          </button>
+        </form>
+      {% elif req.payment_status != 'confirmed' %}
+        <span class="text-xs font-mono text-gray-600 self-center">Confirm payment to generate receipt</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Attached Files -->
+  {% if req.files %}
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+      <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Attached Files</h3>
+      <ul class="space-y-2">
+        {% for file in req.files %}
+          <li class="flex items-center justify-between bg-bg-700 rounded-lg px-4 py-2.5">
+            <div class="flex items-center gap-2">
+              <i data-lucide="paperclip" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-300 text-sm">{{ file.original_filename }}</span>
+              {% if file.file_kind == 'signed_contract' %}
+                <span class="text-[11px] font-mono text-blue-400 bg-blue-900/20 border border-blue-700/30 px-2 py-0.5 rounded-full">Contract</span>
+              {% elif file.file_kind == 'signed_nda' %}
+                <span class="text-[11px] font-mono text-green-400 bg-green-900/20 border border-green-700/30 px-2 py-0.5 rounded-full">NDA</span>
+              {% else %}
+                <span class="text-[11px] font-mono text-gray-500 bg-bg-800 border border-bg-600 px-2 py-0.5 rounded-full">Supporting</span>
+              {% endif %}
+            </div>
+            <a href="{{ url_for('crm_hire_requests.download_file', file_id=file.id) }}"
+               class="text-gold-400 hover:text-gold-300 text-xs font-mono transition-colors flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <!-- WhatsApp Client Alerts -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-5">
+    <div class="flex items-center gap-2 border-b border-bg-700 pb-3">
+      <i data-lucide="message-circle" class="w-4 h-4 text-green-400"></i>
+      <h3 class="font-heading font-semibold text-white text-sm">WhatsApp Client Alerts</h3>
+      {% if req.whatsapp_number %}
+        <span class="ml-auto text-xs font-mono text-green-400 bg-green-900/20 border border-green-700/30 px-2 py-0.5 rounded-full">{{ req.whatsapp_number }}</span>
+      {% else %}
+        <span class="ml-auto text-xs font-mono text-gray-500">No WhatsApp number provided</span>
+      {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+      <!-- Milestone done -->
+      <form method="POST" action="{{ url_for('crm_hire_requests.alert_milestone', id=req.id) }}"
+            class="flex flex-col gap-2 p-4 rounded-lg bg-bg-700 border border-bg-600">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <p class="text-xs font-mono text-gray-400 uppercase tracking-wider">✅ Milestone Done</p>
+        <input type="text" name="milestone_name" placeholder="Milestone name (e.g. Data analysis complete)"
+               class="bg-bg-600 border border-bg-500 rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-gold-500" required />
+        <textarea name="note" rows="2" placeholder="Optional note to client..."
+                  class="bg-bg-600 border border-bg-500 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-gold-500 resize-none"></textarea>
+        <button type="submit" {{ 'disabled' if not req.whatsapp_number }}
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-heading font-semibold text-xs transition-colors">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Send
+        </button>
+      </form>
+
+      <!-- Project delivered -->
+      <form method="POST" action="{{ url_for('crm_hire_requests.alert_delivered', id=req.id) }}"
+            class="flex flex-col gap-2 p-4 rounded-lg bg-bg-700 border border-bg-600">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <p class="text-xs font-mono text-gray-400 uppercase tracking-wider">🎉 Project Delivered</p>
+        <textarea name="note" rows="2" placeholder="Optional message (e.g. link to files, login details)..."
+                  class="bg-bg-600 border border-bg-500 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-gold-500 resize-none"></textarea>
+        <button type="submit" {{ 'disabled' if not req.whatsapp_number }}
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gold-500 hover:bg-gold-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-heading font-semibold text-xs transition-colors">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Send & Mark Complete
+        </button>
+      </form>
+
+      <!-- Revision done -->
+      <form method="POST" action="{{ url_for('crm_hire_requests.alert_revision', id=req.id) }}"
+            class="flex flex-col gap-2 p-4 rounded-lg bg-bg-700 border border-bg-600">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <p class="text-xs font-mono text-gray-400 uppercase tracking-wider">🔁 Revision Done</p>
+        <textarea name="note" rows="2" placeholder="What was revised..."
+                  class="bg-bg-600 border border-bg-500 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-gold-500 resize-none"></textarea>
+        <button type="submit" {{ 'disabled' if not req.whatsapp_number }}
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-heading font-semibold text-xs transition-colors">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Send
+        </button>
+      </form>
+
+      <!-- Need more info -->
+      <form method="POST" action="{{ url_for('crm_hire_requests.alert_need_info', id=req.id) }}"
+            class="flex flex-col gap-2 p-4 rounded-lg bg-bg-700 border border-bg-600">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <p class="text-xs font-mono text-gray-400 uppercase tracking-wider">❓ Need Information</p>
+        <textarea name="what_needed" rows="3" placeholder="What do you need from the client?"
+                  class="bg-bg-600 border border-bg-500 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-gold-500 resize-none" required></textarea>
+        <button type="submit" {{ 'disabled' if not req.whatsapp_number }}
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-700 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-heading font-semibold text-xs transition-colors">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Send
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Status Update -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6 space-y-4">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Update Status</h3>
+    <form method="POST" action="/admin/hire-requests/{{ req.id }}/update-status/" class="flex gap-3 flex-wrap">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <select name="status"
+              class="form-input flex-1 bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 min-w-40">
+        {% for val, label in [
+          ('pending',     'Pending'),
+          ('reviewing',   'Reviewing'),
+          ('accepted',    'Accepted'),
+          ('in_progress', 'In Progress'),
+          ('completed',   'Completed'),
+          ('declined',    'Declined'),
+        ] %}
+          <option value="{{ val }}" {{ 'selected' if req.status == val }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Update Status
+      </button>
+    </form>
+  </div>
+
+  <!-- Admin Notes -->
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-6">
+    <h3 class="font-heading font-semibold text-white text-sm border-b border-bg-700 pb-3 mb-4">Admin Notes</h3>
+    <form method="POST" action="/admin/hire-requests/{{ req.id }}/save-notes/" class="space-y-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <textarea name="admin_notes" rows="4"
+                class="form-input w-full bg-bg-700 border border-bg-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 resize-y"
+                placeholder="Private notes about this request...">{{ req.admin_notes | default('') }}</textarea>
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="save" class="w-4 h-4"></i> Save Notes
+      </button>
+    </form>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap gap-3 pt-2">
+    {% if req.status == 'accepted' %}
+      <form method="POST" action="/admin/hire-requests/{{ req.id }}/create-active-project/">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">
+          <i data-lucide="rocket" class="w-4 h-4"></i> Create Active Project
+        </button>
+      </form>
+    {% endif %}
+
+    <a href="mailto:{{ req.client_email }}?subject=Re: Your project request — {{ req.project_title | default('Hire Request') }}"
+       class="inline-flex items-center gap-2 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-bg-600 transition-colors">
+      <i data-lucide="mail" class="w-4 h-4"></i> Reply via Email
+    </a>
+
+    <form method="POST" action="/admin/hire-requests/{{ req.id }}/delete/"
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          onsubmit="return confirm('Permanently delete this hire request?')">
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-heading font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-700/40 transition-colors">
+        <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

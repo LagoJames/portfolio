@@ -1,0 +1,138 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Payments{% endblock %}
+{% block topbar_title %}Payments{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{ search: '', methodFilter: '' }">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Payments</h2>
+      <p class="text-gray-500 text-sm mt-1">Track every payment received, how much has come in so far, and what is still outstanding.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{{ url_for('crm_pm.export_section', section='payments', fmt='csv') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="download" class="w-4 h-4"></i> CSV
+      </a>
+      <a href="{{ url_for('crm_pm.export_section', section='payments', fmt='xlsx') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="sheet" class="w-4 h-4"></i> XLSX
+      </a>
+      <a href="/admin/pm/payments/new"
+         class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+        <i data-lucide="plus" class="w-4 h-4"></i> Record Payment
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Entries</p>
+      <p class="text-3xl font-heading font-bold text-white">{{ payments | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Income Received</p>
+      <p class="text-3xl font-heading font-bold text-emerald-400">${{ '{:,.0f}'.format(total_received) }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Projects Fully Paid</p>
+      <p class="text-3xl font-heading font-bold text-blue-400">{{ payments | map(attribute='project') | selectattr('balance', 'equalto', 0) | list | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Latest Payment</p>
+      <p class="text-xl font-heading font-bold text-white">{{ payments[0].date.strftime('%b %d') if payments else '—' }}</p>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-4 flex flex-wrap items-center gap-3">
+    <div class="relative flex-1 min-w-[220px]">
+      <i data-lucide="search" class="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      <input type="text" x-model="search" placeholder="Search client, project, receipt, or invoice..."
+             class="w-full bg-bg-700 border border-bg-600 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500">
+    </div>
+    <select x-model="methodFilter"
+            class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
+      <option value="">All Methods</option>
+      {% for method in payments | map(attribute='payment_method') | reject('equalto', none) | reject('equalto', '') | unique | list %}
+        <option value="{{ method }}">{{ method | replace('_', ' ') | title }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700 bg-bg-900/40">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Client / Project</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Method</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden xl:table-cell">Invoice</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Paid Before</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Paid Today</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Balance</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if payments %}
+            {% for payment in payments %}
+              {% set project = payment.project %}
+              {% set prior_paid = namespace(total=0) %}
+              {% if project %}
+                {% for earlier in project.payments %}
+                  {% if earlier.id != payment.id and earlier.date and payment.date and (earlier.date < payment.date or (earlier.date == payment.date and earlier.id < payment.id)) %}
+                    {% set prior_paid.total = prior_paid.total + (earlier.amount or 0) %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              <tr
+                class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors"
+                x-show="
+                  (!search || '{{ ((project.client.name if project and project.client else '') ~ ' ' ~ (project.name if project else '') ~ ' ' ~ (payment.receipt_id or '') ~ ' ' ~ (payment.invoice_id or '')) | lower }}'.includes(search.toLowerCase())) &&
+                  (!methodFilter || '{{ payment.payment_method or '' }}' === methodFilter)
+                "
+              >
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ payment.date.strftime('%b %d, %Y') if payment.date else '—' }}</td>
+                <td class="px-5 py-3">
+                  <div class="text-white">{{ project.client.name if project and project.client else '—' }}</div>
+                  <div class="text-gray-500 text-xs mt-1">{{ project.name if project else 'No project' }}</div>
+                  <div class="text-gray-500 text-xs mt-1">{{ payment.receipt_id or 'No receipt ID' }}</div>
+                </td>
+                <td class="px-5 py-3 text-gray-400 hidden lg:table-cell">{{ payment.payment_method | replace('_', ' ') | title if payment.payment_method else '—' }}</td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden xl:table-cell">{{ payment.invoice_id or '—' }}</td>
+                <td class="px-5 py-3 text-right text-gray-400 font-mono text-xs hidden lg:table-cell">${{ '{:,.0f}'.format(prior_paid.total) }}</td>
+                <td class="px-5 py-3 text-right text-emerald-400 font-mono font-semibold">${{ '{:,.0f}'.format(payment.amount or 0) }}</td>
+                <td class="px-5 py-3 text-right font-mono text-xs hidden lg:table-cell {{ 'text-red-400' if project and project.balance > 0 else 'text-gray-500' }}">
+                  ${{ '{:,.0f}'.format(project.balance if project else 0) }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/pm/payments/{{ payment.id }}/edit" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/pm/payments/{{ payment.id }}/delete" class="inline"
+                          onsubmit="return confirm('Delete this payment?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="8" class="px-5 py-12 text-center">
+                <i data-lucide="wallet" class="w-10 h-10 text-gray-600 mx-auto mb-2"></i>
+                <p class="text-gray-500 font-mono text-sm">No payments recorded yet.</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

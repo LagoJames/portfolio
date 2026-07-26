@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Store | Lago Brian{% endblock %}
+{% block meta_description %}Digital products and research tools by Lago Brian.{% endblock %}
+
+{% block content %}
+<section class="pt-24 pb-10 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Store</p>
+    <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-4">Digital Products</h1>
+    <p class="max-w-2xl text-base font-body text-gray-400">
+      Tools, research assets, and practical resources built around quantitative finance, trading, and analysis workflows.
+    </p>
+  </div>
+</section>
+
+<section class="py-14 bg-bg-900">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-6">
+      {% for product in products %}
+        <article class="rounded-3xl border border-bg-700 bg-gradient-to-br from-bg-800 to-bg-900 overflow-hidden shadow-2xl shadow-black/20">
+          <div class="p-8 sm:p-10">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div class="max-w-2xl">
+                {% if product.image_url %}
+                  <div class="mb-5 overflow-hidden rounded-2xl border border-bg-700 bg-bg-900 max-w-sm">
+                    <div class="aspect-[4/5] bg-bg-950 relative">
+                      <img src="{{ product.image_url }}"
+                           alt="{{ product.title }}"
+                           loading="lazy"
+                           class="w-full h-full object-cover"
+                           onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                      <div class="hidden absolute inset-0 flex items-center justify-center">
+                        <i data-lucide="image-off" class="w-8 h-8 text-bg-500"></i>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+                <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">{{ product.subtitle }}</p>
+                <h2 class="font-heading font-bold text-3xl text-white mb-3">{{ product.title }}</h2>
+                <p class="text-base text-gray-400 leading-relaxed mb-5">{{ product.description }}</p>
+                <div class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-bg-700 border border-bg-600 text-xs font-mono text-gray-300">
+                  <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-gold-400"></i>
+                  {{ product.price_label }}
+                </div>
+              </div>
+
+              <div class="lg:min-w-[240px]">
+                <div class="rounded-2xl border border-gold-700/30 bg-gold-900/10 p-5">
+                  <p class="text-sm font-heading font-semibold text-white mb-2">Available now</p>
+                  {% if product.checkout_kind == 'download' %}
+                    <p class="text-sm text-gray-400 mb-4">
+                      Free download — available instantly.
+                    </p>
+                    <a href="{{ url_for('public.store_download', slug=product.slug) }}"
+                       class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-semibold transition-colors">
+                      <i data-lucide="download" class="w-4 h-4"></i>
+                      Free
+                    </a>
+                  {% else %}
+                    <p class="text-sm text-gray-400 mb-4">
+                      Purchase securely through Gumroad and access the product from:
+                    </p>
+                    <a href="{{ product.url }}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-semibold transition-colors">
+                      <i data-lucide="external-link" class="w-4 h-4"></i>
+                      Open on Gumroad
+                    </a>
+                    <p class="text-xs font-mono text-gray-500 mt-3 break-all">{{ product.url | replace('https://', '') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Skills{% endblock %}
+{% block topbar_title %}Skills{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Skills</h2>
+      <p class="text-gray-500 text-xs font-mono mt-0.5">{{ skills | length }} total</p>
+    </div>
+    <a href="/admin/skills/new/"
+       class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-bg-950 font-heading font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+      <i data-lucide="plus" class="w-4 h-4"></i> New Skill
+    </a>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Name</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Category</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Level</th>
+            <th class="text-center px-3 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Visible</th>
+            <th class="text-center px-3 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Order</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if skills %}
+            {% for skill in skills %}
+              <tr class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors">
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-3">
+                    {% if skill.icon %}
+                      <span class="text-xl">{{ skill.icon }}</span>
+                    {% endif %}
+                    <span class="text-white font-medium">{{ skill.name }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-3 hidden md:table-cell">
+                  <span class="bg-bg-700 text-gray-300 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded">{{ skill.category | default('—') }}</span>
+                </td>
+                <td class="px-5 py-3">
+                  {% set level = skill.level | default(0) | int %}
+                  <div class="flex items-center gap-2">
+                    <div class="flex gap-0.5">
+                      {% for i in range(5) %}
+                        <div class="w-4 h-1.5 rounded-sm {{ 'bg-gold-400' if i < level else 'bg-bg-600' }}"></div>
+                      {% endfor %}
+                    </div>
+                    <span class="text-gray-500 font-mono text-xs">{{ level }}/5</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center">
+                  <form method="POST" action="/admin/skills/{{ skill.id }}/toggle-visible/" class="inline">
+                    <button type="submit">
+                      <i data-lucide="{{ 'eye' if skill.is_visible else 'eye-off' }}" class="w-4 h-4 mx-auto {{ 'text-green-400' if skill.is_visible else 'text-gray-600' }}"></i>
+                    </button>
+                  </form>
+                </td>
+                <td class="px-3 py-3 text-center text-gray-500 font-mono text-xs hidden lg:table-cell">{{ skill.sort_order | default(0) }}</td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/skills/{{ skill.id }}/edit/" class="text-gray-400 hover:text-gold-400 transition-colors">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                    </a>
+                    <form method="POST" action="/admin/skills/{{ skill.id }}/delete/"
+                          onsubmit="return confirm('Delete this skill?')" class="inline">
+                      <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" class="px-5 py-10 text-center text-gray-500 font-mono text-sm">
+                No skills. <a href="/admin/skills/new/" class="text-gold-400 hover:underline">Add one →</a>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

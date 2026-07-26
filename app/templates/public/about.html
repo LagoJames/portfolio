@@ -1,0 +1,460 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}About  -  Lago Brian{% endblock %}
+{% block meta_description %}Lago Brian  -  Financial Engineer, Data Scientist & Writer based in Nairobi, Kenya. Quantitative research, algorithmic trading, machine learning, and market writing.{% endblock %}
+
+{% block content %}
+
+<!-- ===== HERO ===== -->
+<section class="pt-28 pb-16 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+
+      <!-- Photo + Quick Info -->
+      <div class="flex flex-col items-center lg:items-start gap-5">
+        <!-- Profile photo placeholder -->
+        <div class="relative w-36 h-36 rounded-2xl overflow-hidden border-2 border-bg-600 bg-bg-700 flex items-center justify-center">
+          {% if settings.profile_photo_url %}
+            <img src="{{ settings.profile_photo_url }}" alt="Lago Brian" class="w-full h-full object-cover" />
+          {% else %}
+            <span class="font-mono font-bold text-4xl text-gold-400">LB</span>
+          {% endif %}
+          <!-- Available indicator -->
+          <div class="absolute bottom-2 right-2 w-3.5 h-3.5 rounded-full bg-green-400 border-2 border-bg-700"></div>
+        </div>
+
+        <!-- Quick facts -->
+        <div class="flex flex-col gap-2 text-sm font-body w-full">
+          {% for icon, label, value in [
+            ('map-pin', 'Location', 'Nairobi, Kenya'),
+            ('graduation-cap', 'Education', 'BSc Financial Engineering, JKUAT'),
+            ('heart', 'Background', 'Healthcare (2012–2013)'),
+            ('clock', 'Experience', '5+ Years'),
+            ('calendar', 'Availability', 'Open to projects'),
+          ] %}
+            <div class="flex items-center gap-2.5 text-gray-400">
+              <i data-lucide="{{ icon }}" class="w-4 h-4 text-gold-500 shrink-0"></i>
+              <span class="text-gray-500">{{ label }}:</span>
+              <span class="text-gray-300">{{ value }}</span>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Social links -->
+        <div class="flex items-center gap-3 pt-2">
+          <!-- GitHub -->
+          <a href="https://github.com/lagobrian" target="_blank" rel="noopener noreferrer" title="GitHub"
+             class="w-9 h-9 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 flex items-center justify-center text-gray-400 hover:text-gold-400 transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+          </a>
+          <!-- Upwork -->
+          <a href="https://www.upwork.com/freelancers/jamesl34" target="_blank" rel="noopener noreferrer" title="Upwork"
+             class="w-9 h-9 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 flex items-center justify-center text-gray-400 hover:text-gold-400 transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.546-1.405 0-2.543-1.14-2.545-2.546V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3-2.439-5.439-5.439-5.439z"/>
+            </svg>
+          </a>
+          <!-- Substack -->
+          <a href="https://quanthedge.substack.com" target="_blank" rel="noopener noreferrer" title="Substack Newsletter"
+             class="w-9 h-9 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 flex items-center justify-center text-gray-400 hover:text-gold-400 transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
+            </svg>
+          </a>
+          <!-- Email -->
+          <a href="mailto:lagobrian@outlook.com" title="Email"
+             class="w-9 h-9 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 flex items-center justify-center text-gray-400 hover:text-gold-400 transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Download CV -->
+        <a href="{{ url_for('static', filename='samples/Lago_Brian_CV.pdf') }}" download
+           class="inline-flex items-center gap-2 w-full justify-center px-5 py-2.5 rounded-lg bg-bg-800 border border-bg-600 hover:border-gold-600 text-sm font-mono text-gray-300 hover:text-gold-400 transition-all">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          Download CV
+        </a>
+      </div>
+
+      <!-- Bio -->
+      <div class="lg:col-span-2">
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">About Me</p>
+        <h1 class="font-heading font-bold text-4xl sm:text-5xl text-gray-50 mb-6 leading-tight">
+          Lago Brian
+        </h1>
+        <p class="text-lg font-body text-gray-300 leading-relaxed mb-5">
+          I'm a Financial Engineer, Data Scientist, and writer based in Nairobi, Kenya. My work sits
+          at the intersection of quantitative finance, machine learning, and algorithmic trading  - 
+          building tools and writing research that both have to hold up when the market is open.
+        </p>
+        <p class="text-base font-body text-gray-400 leading-relaxed mb-8">
+          Before finance, I spent 2012 to 2013 as a healthcare assistant at the Aga Khan Hospital in Nairobi.
+          Surgical ward. Post-op patients  -  gunshot wounds, stroke survivors, people who had just come
+          through something serious. You learn quickly that process matters, that staying calm when something
+          is going wrong is a skill you build deliberately, not a personality trait you're born with.
+          I still think about that.
+        </p>
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="{{ url_for('public.hire') }}"
+             class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all shadow-lg shadow-gold-900/30">
+            Hire Me <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a href="{{ url_for('public.work') }}"
+             class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+            View Portfolio
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== MY EDGE ===== -->
+<section class="py-16 bg-bg-900 border-b border-bg-700">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">What Sets Me Apart</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-8">My Edge</h2>
+      <div class="space-y-5 font-body text-gray-400 leading-relaxed text-base">
+        <p>
+          Voracious reader. ADHD that I've learned to channel into hyperfocus on hard problems.
+          A genuine love for numbers and markets that goes beyond work.
+        </p>
+        <p>
+          I've experienced poverty  -  real poverty  -  and it drives everything. Better tools, better
+          analysis, better access to financial knowledge. That's what this is for.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== HOW I WORK ===== -->
+<section class="py-16 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-3">Process</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-8">How I Work</h2>
+      <ul class="space-y-4">
+        {% for item in [
+          ('message-square', 'I over-communicate. You\'ll never wonder what\'s happening with your project.'),
+          ('clock', 'I deliver early when I can, and flag blockers immediately when I can\'t.'),
+          ('wifi', 'I prefer async communication but I\'m available for calls when needed.'),
+          ('trending-up', 'I treat every project like my own money is on the line.'),
+          ('book-open', 'I read obsessively  -  finance, ML papers, trading books, philosophy  -  and it shows up in the depth of my work.'),
+        ] %}
+          <li class="flex items-start gap-4">
+            <div class="mt-0.5 w-8 h-8 rounded-lg bg-gold-900/30 border border-gold-800/40 flex items-center justify-center shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold-400" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <p class="font-body text-gray-400 leading-relaxed text-base">{{ item[1] }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== WHAT I DO ===== -->
+<section class="py-16 bg-bg-900 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Services</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">What I Do</h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {% set services = [
+        ('bar-chart-2', 'gold', 'Quant Finance',
+         'Options pricing, model calibration, risk modeling, portfolio optimisation, derivatives, fixed income, and stochastic calculus. Applied to real markets.'),
+        ('brain', 'purple', 'ML / AI',
+         'Machine learning models for price prediction, regime detection, anomaly detection, NLP for financial text, and deep learning architectures.'),
+        ('zap', 'green', 'Trading Systems',
+         'End-to-end algorithmic trading systems  -  backtesting frameworks, execution logic, QuantConnect strategies, and live deployment.'),
+        ('microscope', 'blue', 'Statistical Research',
+         'Econometric analysis, time-series modelling, hypothesis testing, and quantitative research that holds up to scrutiny.'),
+      ] %}
+      {% for icon, color, title, desc in services %}
+        <div class="group flex flex-col gap-4 p-6 rounded-xl bg-bg-800 border border-bg-700 hover:border-{{ color }}-700/50 transition-all duration-200 hover:-translate-y-0.5">
+          <h3 class="font-heading font-semibold text-gray-100 text-base">{{ title }}</h3>
+          <p class="text-sm font-body text-gray-500 leading-relaxed">{{ desc }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== EDUCATION TIMELINE ===== -->
+<section class="py-16 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Background</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">Education</h2>
+    </div>
+
+    <div class="relative pl-8">
+      <!-- Vertical line -->
+      <div class="absolute left-3 top-0 bottom-0 w-px bg-gold-600/30"></div>
+
+      <div class="flex flex-col gap-8">
+        {% set edu_items = [
+          ('2013  -  2018', 'BSc Financial Engineering', 'Jomo Kenyatta University of Agriculture and Technology (JKUAT)', 'Stochastic calculus, derivatives pricing, econometrics, and portfolio theory. Everything else I know  -  ML, trading systems, data science  -  I taught myself through curiosity.'),
+          ('2026  -  Present', 'CFA Level I Candidate', 'CFA Institute', 'Quantitative methods, equity valuation, fixed income, and derivatives.'),
+          ('2026  -  Upcoming', 'MSc Financial Engineering', 'WorldQuant University', 'Starting later this year. Quantitative finance, computational methods, and risk management.'),
+        ] %}
+        {% for period, degree, institution, desc in edu_items %}
+          <div class="relative">
+            <!-- Dot on timeline -->
+            <div class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-gold-500 border-2 border-bg-950"></div>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-xs font-mono text-gold-500">{{ period }}</span>
+              <h3 class="font-heading font-semibold text-gray-100 text-base">{{ degree }}</h3>
+              <p class="text-sm font-mono text-gray-500">{{ institution }}</p>
+              <p class="text-sm font-body text-gray-400 leading-relaxed">{{ desc }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== TRACK RECORD ===== -->
+<section class="py-16 bg-bg-900 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-10">
+        <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Numbers</p>
+        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">Track Record</h2>
+      </div>
+
+      <div class="p-8 rounded-2xl bg-bg-800 border border-bg-700">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {% for value, label in [
+            ('67+', 'Projects Completed'),
+            ('$9K+', 'Total Earnings'),
+            ('35+', 'Papers Written'),
+            ('5+', 'Years Experience'),
+          ] %}
+            <div class="text-center">
+              <div class="font-mono font-bold text-3xl text-gold-400 mb-1">{{ value }}</div>
+              <div class="text-xs font-body text-gray-500 uppercase tracking-wider">{{ label }}</div>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="mt-8 pt-6 border-t border-bg-700 flex flex-wrap justify-center gap-3">
+          {% for badge in ['Top Rated Upwork', '5★ Reviews', 'Spectra Markets Featured', 'MarketWatch Referenced', 'B.Sc Financial Engineering'] %}
+            <span class="px-3 py-1.5 rounded-full bg-bg-700 border border-bg-600 text-xs font-mono text-gold-400">
+              {{ badge }}
+            </span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== PRESS ===== -->
+<section class="py-16 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Press</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">Press Appearances</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+      <a href="https://spectramarkets.com" target="_blank" rel="noopener noreferrer"
+         class="group flex flex-col gap-4 p-6 rounded-xl bg-bg-800 border border-bg-700 hover:border-blue-700/50 transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-900/30 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400" aria-hidden="true"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+          </div>
+          <div>
+            <h3 class="font-heading font-semibold text-gray-200 group-hover:text-blue-300 transition-colors">Spectra Markets</h3>
+            <p class="text-xs font-mono text-gray-500">FX & Macro Research</p>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600 group-hover:text-blue-400 ml-auto transition-colors" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+        </div>
+        <p class="text-sm font-body text-gray-500 italic leading-relaxed">
+          "Cited for quantitative analysis on FX volatility regimes and cross-asset correlation in emerging markets."
+        </p>
+      </a>
+
+      <a href="https://marketwatch.com" target="_blank" rel="noopener noreferrer"
+         class="group flex flex-col gap-4 p-6 rounded-xl bg-bg-800 border border-bg-700 hover:border-green-700/50 transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-green-900/30 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </div>
+          <div>
+            <h3 class="font-heading font-semibold text-gray-200 group-hover:text-green-300 transition-colors">MarketWatch</h3>
+            <p class="text-xs font-mono text-gray-500">Financial News</p>
+          </div>
+          <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-600 group-hover:text-green-400 ml-auto transition-colors"></i>
+        </div>
+        <p class="text-sm font-body text-gray-500 italic leading-relaxed">
+          "Referenced for data-driven research on emerging market equity dynamics and algorithmic signal generation."
+        </p>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== BEYOND WORK ===== -->
+<section class="py-16 bg-bg-900 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest mb-2">Personal</p>
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50">Beyond Work</h2>
+    </div>
+
+    <!-- Interests grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto mb-14">
+      {% for emoji, title, desc in [
+        ('🏎️', 'Formula 1', 'Every race is a resource allocation problem dressed up in carbon fibre. I\'ve spent more time than I should running tyre degradation models on F1 data. No regrets.'),
+        ('📈', 'Trading', 'Active prop trader in FX and equity derivatives. The market is the world\'s most brutal feedback loop. That\'s exactly what makes it interesting.'),
+        ('🎵', 'House Music', 'Deep house, Afro house, and Nairobi underground. Music with structure and soul  -  patterns emerging from organised chaos.'),
+      ] %}
+        <div class="p-6 rounded-xl bg-bg-800 border border-bg-700 flex flex-col gap-3">
+          <span class="text-3xl">{{ emoji }}</span>
+          <h3 class="font-heading font-semibold text-gray-100 text-base">{{ title }}</h3>
+          <p class="text-sm font-body text-gray-500 leading-relaxed">{{ desc }}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Spotify playlist -->
+    <div class="max-w-4xl mx-auto mb-14">
+      <h3 class="font-heading font-semibold text-gray-200 text-base mb-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-2 text-gold-400" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        What I'm Listening To
+      </h3>
+      <div class="rounded-xl overflow-hidden border border-bg-700">
+        <iframe
+          data-testid="embed-iframe"
+          style="border-radius:12px"
+          src="https://open.spotify.com/embed/playlist/7egwGqlEttiSXfBdv34HgK?utm_source=generator"
+          width="100%"
+          height="152"
+          frameborder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          class="block">
+        </iframe>
+      </div>
+    </div>
+
+    <!-- Art section -->
+    <div class="max-w-4xl mx-auto mb-14 p-6 rounded-xl bg-bg-800 border border-bg-700 flex items-center gap-5">
+      <div class="w-12 h-12 rounded-xl bg-purple-900/30 border border-purple-800/40 flex items-center justify-center shrink-0">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+      </div>
+      <div>
+        <h3 class="font-heading font-semibold text-gray-100 text-base mb-1">I Also Make Art</h3>
+        <p class="text-sm font-body text-gray-500 leading-relaxed">
+          Creativity is still pattern recognition, just in another medium. I work in graphite, wildlife studies, and colored portraits too.
+          <a href="{{ art_facebook_url }}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="text-gold-400 hover:text-gold-300 transition-colors ml-1">
+            See my work on Facebook
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Art gallery -->
+    <div class="max-w-4xl mx-auto">
+      <h3 class="font-heading font-semibold text-gray-200 text-base mb-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-2 text-gold-400" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        Gallery
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for piece in art_gallery %}
+          <div class="rounded-2xl overflow-hidden border border-bg-700 bg-bg-800" data-art-card>
+            <div class="aspect-[4/5] bg-bg-900 relative">
+              <img src="{{ piece.image_url }}"
+                   alt="{{ piece.title }}"
+                   loading="lazy"
+                   class="w-full h-full object-cover"
+                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+              <div class="hidden absolute inset-0 flex flex-col items-center justify-center gap-2 text-center px-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-bg-500" aria-hidden="true"><path d="M2 2l20 20"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><path d="M13.5 6.5 15 5"/><path d="M3 3v.01M21 21v.01"/><path d="M3 7a2 2 0 0 1 2-2h.01M21 17v-4M21 7l-4.5 4.5"/><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+                <p class="text-xs font-mono text-gray-500">Add `{{ piece.filename }}` to display this piece.</p>
+              </div>
+            </div>
+            <div class="px-4 py-3">
+              <p class="font-heading font-semibold text-white">{{ piece.title }}</p>
+              <p class="text-xs font-mono text-gray-500 mt-1">{{ piece.medium }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <p class="text-xs font-mono text-gray-600 mt-3 text-center">The gallery uses local image files, with the full archive linked on Facebook.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ===== QR CODE ===== -->
+<section class="py-16 bg-bg-950 border-b border-bg-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+    <div class="flex flex-col items-center gap-5 p-8 rounded-2xl bg-bg-800 border border-bg-700 text-center max-w-xs w-full">
+      <p class="text-xs font-mono text-gold-500 uppercase tracking-widest">Share My Profile</p>
+      <img
+        src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://lagobrianportfolio-production.up.railway.app/"
+        alt="QR code linking to lagobrianportfolio-production.up.railway.app"
+        width="200"
+        height="200"
+        loading="lazy"
+        class="rounded-xl border border-bg-600 bg-white p-2"
+      />
+      <p class="text-sm font-body text-gray-400 leading-relaxed">Scan to share my profile</p>
+      <a href="https://lagobrianportfolio-production.up.railway.app/" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-gray-600 hover:text-gold-400 transition-colors">
+        lagobrianportfolio-production.up.railway.app
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== CTA ===== -->
+<section class="py-20 bg-bg-950">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 class="font-heading font-bold text-3xl sm:text-4xl text-gray-50 mb-5">
+      Want to work together?
+    </h2>
+    <p class="text-base font-body text-gray-400 mb-8 leading-relaxed">
+      I'm available for freelance projects, consulting, and research collaborations.
+      Let's build something worth building.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="{{ url_for('public.hire') }}"
+         class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-heading font-bold text-sm transition-all shadow-lg shadow-gold-900/40">
+        Hire Me <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+      <a href="{{ url_for('static', filename='samples/Lago_Brian_CV.pdf') }}" download
+         class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-bg-600 hover:border-gold-600 text-gray-300 hover:text-gold-400 font-heading font-semibold text-sm transition-all bg-bg-800/50">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download CV
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

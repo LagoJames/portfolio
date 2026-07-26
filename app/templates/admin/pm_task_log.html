@@ -1,0 +1,137 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Task Log{% endblock %}
+{% block topbar_title %}Task Log{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{ search: '', statusFilter: '' }">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <h2 class="font-heading font-semibold text-2xl text-white">Task Log</h2>
+      <p class="text-gray-500 text-sm mt-1">Freelancer work diary with estimated vs actual time side by side for PM review.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{{ url_for('crm_pm.export_section', section='task_log', fmt='csv') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="download" class="w-4 h-4"></i> CSV
+      </a>
+      <a href="{{ url_for('crm_pm.export_section', section='task_log', fmt='xlsx') }}"
+         class="inline-flex items-center gap-1.5 bg-bg-700 hover:bg-bg-600 text-white font-heading font-semibold text-sm px-4 py-2 rounded-lg border border-bg-600 transition-colors">
+        <i data-lucide="sheet" class="w-4 h-4"></i> XLSX
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Entries</p>
+      <p class="text-3xl font-heading font-bold text-white">{{ logs | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Completed</p>
+      <p class="text-3xl font-heading font-bold text-emerald-400">{{ logs | selectattr('status', 'equalto', 'completed') | list | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Ongoing</p>
+      <p class="text-3xl font-heading font-bold text-blue-400">{{ logs | selectattr('status', 'equalto', 'in_progress') | list | length }}</p>
+    </div>
+    <div class="bg-bg-800 border border-bg-700 rounded-xl p-5">
+      <p class="text-gray-500 font-mono text-xs uppercase tracking-widest mb-1">Blocked</p>
+      <p class="text-3xl font-heading font-bold text-red-400">{{ logs | selectattr('status', 'equalto', 'blocked') | list | length }}</p>
+    </div>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl p-4 flex flex-wrap items-center gap-3">
+    <div class="relative flex-1 min-w-[220px]">
+      <i data-lucide="search" class="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      <input type="text" x-model="search" placeholder="Search task log entries..."
+             class="w-full bg-bg-700 border border-bg-600 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500">
+    </div>
+    <select x-model="statusFilter"
+            class="bg-bg-700 border border-bg-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-yellow-500">
+      <option value="">All Statuses</option>
+      <option value="in_progress">Ongoing</option>
+      <option value="completed">Completed</option>
+      <option value="blocked">Blocked</option>
+    </select>
+  </div>
+
+  <div class="bg-bg-800 border border-bg-700 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bg-700 bg-bg-900/40">
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Date</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Task</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden md:table-cell">Project</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide hidden lg:table-cell">Estimate</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actual</th>
+            <th class="text-left px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-right px-5 py-3 text-xs font-mono text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if logs %}
+            {% for log in logs %}
+              <tr
+                class="border-b border-bg-700/50 hover:bg-bg-700/30 transition-colors"
+                x-show="
+                  (!search || '{{ ((log.task.description if log.task else '') ~ ' ' ~ (log.notes or '')) | lower }}'.includes(search.toLowerCase())) &&
+                  (!statusFilter || '{{ log.status or '' }}' === statusFilter)
+                "
+              >
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs">{{ log.date.strftime('%b %d, %Y') if log.date else '—' }}</td>
+                <td class="px-5 py-3">
+                  <div class="text-white">{{ log.task.description if log.task else 'Unknown task' }}</div>
+                  <div class="text-gray-500 text-xs mt-1">{{ log.task.task_id_code if log.task else 'No ID' }}</div>
+                  {% if log.notes %}
+                    <div class="text-gray-500 text-xs mt-1 truncate max-w-xs">{{ log.notes }}</div>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-gray-400 hidden md:table-cell">{{ log.task.project.name if log.task and log.task.project else '—' }}</td>
+                <td class="px-5 py-3 text-gray-400 font-mono text-xs hidden lg:table-cell">{{ log.task.estimated_hours if log.task and log.task.estimated_hours is not none else '—' }}</td>
+                <td class="px-5 py-3 text-white font-mono text-xs">{{ log.actual_time or '—' }}</td>
+                <td class="px-5 py-3">
+                  {% if log.status == 'completed' %}
+                    <span class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Completed</span>
+                  {% elif log.status == 'in_progress' %}
+                    <span class="bg-blue-900/30 text-blue-400 border border-blue-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Ongoing</span>
+                  {% elif log.status == 'blocked' %}
+                    <span class="bg-red-900/30 text-red-400 border border-red-700/30 text-xs font-mono px-2 py-0.5 rounded-full">Blocked</span>
+                  {% else %}
+                    <span class="bg-bg-700 text-gray-400 border border-bg-600 text-xs font-mono px-2 py-0.5 rounded-full">—</span>
+                  {% endif %}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    {% if pm_role == 'freelancer' %}
+                      <a href="/admin/pm/logs/{{ log.id }}/edit" class="text-gray-400 hover:text-gold-400 transition-colors">
+                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                      </a>
+                      <form method="POST" action="/admin/pm/logs/{{ log.id }}/delete" class="inline"
+                            onsubmit="return confirm('Delete this work log?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="text-gray-400 hover:text-red-400 transition-colors">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </form>
+                    {% else %}
+                      <span class="text-gray-500 font-mono text-xs">Read only</span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-5 py-12 text-center">
+                <i data-lucide="clock-3" class="w-10 h-10 text-gray-600 mx-auto mb-2"></i>
+                <p class="text-gray-500 font-mono text-sm">No task logs recorded yet.</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
