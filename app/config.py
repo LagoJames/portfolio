@@ -2,7 +2,7 @@ import os
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-fallback-key')
-    _db_url = os.environ.get('DATABASE_URL', 'sqlite:///portfolio.db')
+    _db_url = os.environ.get('DATABASE_URL', 'sqlite:////app/instance/portfolio.db')
     # Render uses postgres:// but SQLAlchemy needs postgresql://
     if _db_url.startswith('postgres://'):
         _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
